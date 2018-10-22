@@ -27,7 +27,7 @@ for i = 1:n3
     sTrueV(:,i) = s;
 end                                                      %将奇异值分解中的各frontal层的对角S提取出来放入各列，为了添一个收缩的过程
 %%
-[sTrueV] = proxF_l1(sTrueV,rho);                            %对S做特征缩减，此处使用了L1范数来做（见论文第六页method one）这个又是特征值？？
+[sTrueV] = proxF_l1(sTrueV,rho);                            %对S做特征缩减，此处使用了L1范数来做（见论文第六页method one）这个又是特征值
 %[sTrueV,objV] = proxF_l1(sTrueV,rho);
 %%实际上是淘汰了一些较小的奇异值，考虑PCA类似，忽略掉一些次要的因素完成近似
 objV = sum(sTrueV(:));                                      %奇异值之和

@@ -107,8 +107,8 @@ for k         =     1 : maxItr
     % z-update with relaxation
     a = x + 1/rho*uhat;
     a = reshape(a,sX);
+    zs = size
     [z, objV] =     proxF_tSVD_1(a,1/rho,parOP);
-    z = z(:)                                           ;
     %
     u         =     uhat + rho*(x - z)                 ;
     

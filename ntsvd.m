@@ -120,7 +120,7 @@ function [U, S, V] = takeSVDs(U,S,V,A,endI,runPar)
 if ~exist('runPar','var')
     runPar = false;
 end
-    
+
 if ~runPar || parpool('size') == 0                  %matlabpool('size')
 
     for i=1:endI
