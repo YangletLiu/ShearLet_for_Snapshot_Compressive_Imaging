@@ -18,12 +18,12 @@
 %           or
 %
 %           U,S,V - (if fftOp false) ifft_T(U)*ifft_T(S)*ifft_T(V)^T = A
-%
+%           
 % Original author :  Misha Kilmer, Ning Hao
 % Edited by       :  G. Ely, S. Aeron, Z. Zhang, ECE, Tufts Univ. 03/16/2015
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [U,S,V] = ntsvd(A,fftOP,parOP)
+function [U,S,V,r] = ntsvd(A,fftOP,parOP)
 
 % determine size of tensor
 sa = size(A);                               %各个维度的大小
@@ -109,7 +109,6 @@ end
 if exist('transflag','var')
     Uold =U; U=V; S=tran(S); V=Uold;  
 end
-
 
 end
 %% BEGIN SUBFUNCTIONS
