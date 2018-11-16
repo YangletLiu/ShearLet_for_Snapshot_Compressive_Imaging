@@ -1,5 +1,5 @@
 function A1 = block_diagonal(X)
-% 排列为对角矩阵
+% 展开第三维，将tensor排列为对角矩阵
 % input: m*n*k
 % output: mk*nk
     [m,n,k] = size(X);

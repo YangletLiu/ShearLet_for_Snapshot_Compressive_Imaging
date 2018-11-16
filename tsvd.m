@@ -10,7 +10,7 @@ function [U,S,V,r]=tsvd(X)
     r = 0;
     for i=1:k
         [U(:,:,i),S(:,:,i),V(:,:,i)] = svd(X(:,:,i));
-        r = max(r,nnz(S(:,:,i)));
+        r = max(r,nnz(S(:,:,i)>0.001));   %设定一个阈值，小于该值的都视作0，因为可能有精度问题
     end
     U = ifft(U,[],3);
     S = ifft(S,[],3);
