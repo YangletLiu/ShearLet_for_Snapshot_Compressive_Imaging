@@ -1,4 +1,4 @@
-function [x,y]=tam(P,omiga,L,r)
+function [x,y]=tam(T,P,omiga,L,r)
 % Problem state£ºmin|| b - <A,(X*Y)> ||_F^2, s.t.:tubal-rank of X * Y=r
     [m,n,k] = size(omiga);
     y = zeros(r,n,k);
@@ -11,15 +11,20 @@ function [x,y]=tam(P,omiga,L,r)
     for i=1:L
         y = LS_Y(P,omiga,x,n);
         x = LS_X(P,omiga,y,m);
+        % temp = tprod(ifft(x,[],3),ifft(y,[],3));
+        % rse = norm(temp(:)-T(:))/norm(T(:));
+        % fprintf('%d th iteration, rse%e\n',i,rse);
     end
     x = ifft(x,[],3);
     y = ifft(y,[],3);
 end
 
 function X = initialize(P,r)
-    [U,~,~] = tsvd(P);
+    [U,~,~] = tsvd(P,0.01);
     X = U(:,1:r,:);
-    X = orth(X);
+    for i=1:size(X,3)
+        X(:,:,i) = orth(X(:,:,i));
+    end
 end
 
 function X = LS_X(P,omiga,Y,m)

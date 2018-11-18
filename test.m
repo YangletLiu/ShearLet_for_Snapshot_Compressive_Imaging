@@ -61,7 +61,7 @@ maskFrames = size(mask,3);
 % end
 % sampledUnfold = sampledUnfold(:);
 % % 这个对采样的预处理很合理，非常接近真实的采样值，也就是说可以简单地从复合的采样中恢复出对每一帧的采样
-% %(sampledUnfold-unavailableSampled)/sum(unavailableSampled)=6.5442e-17的相对误差
+% %(sampledUnfold-unavailableSampled)/sum(unavailableSampled) % =6.5442e-17的相对误差
 % orig = orig*normalize;
 
 
@@ -85,28 +85,39 @@ maskFrames = size(mask,3);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% use AM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 把八帧拼起来作为原来的一帧处理，k=4，m=8m，n=n
+iterate_times = 1;
+rho = 0.01;                                                 %占最大值的多少认为是0，rho越小，求出的秩越大
 matOrig = zeros(width*maskFrames,height,frames/maskFrames); % 不要用reshape破坏低秩性
 for i = 1:frames/maskFrames
     for j = 1:maskFrames
         matOrig((j-1)*width+1:j*width,:,i) = orig(:,:,j+(i-1)*maskFrames); 
     end
 end
-[~,~,~,r] = tsvd(matOrig);                                 % 固定一个秩这里选用未经处理的时候的秩
-matMask = zeros(width*maskFrames,height);
-for i = 1:maskFrames
-    matMask((i-1)*width+1:i*width,:) = mask(:,:,i);
-end
-matMask = repmat(matMask,[1 1 frames/maskFrames]);
-matSampled = matOrig.*matMask;
-iterate_times = 1;
+[~,~,~,r] = tsvd(matOrig,rho)                                 % 固定一个秩这里选用未经处理的时候的秩
+% [U,S,V,~] = tsvd(matOrig,rho);
+% svdRecovered = tprod(tprod(U(:,1:r,:),S(1:r,1:r,:)),tran(V(:,1:r,:)));
+% norm(svdRecovered(:) - matOrig(:))/norm(matOrig(:)) %rho取到0.01误差也很低，RSE差不多也是成1:1正比的。确实是一个低秩张量
+
+% matMask = zeros(width*maskFrames,height);
+% for i = 1:maskFrames
+%     matMask((i-1)*width+1:i*width,:) = mask(:,:,i);
+% end
+% matMask = repmat(matMask,[1 1 frames/maskFrames]);
+% matSampled = matOrig.*matMask;
+
+% [X,Y] = tam(matSampled,matMask,iterate_times,r);
+% Recovered = tprod(X,Y);
+% norm(Recovered(:) - matOrig(:))/norm(matOrig(:))
+
 
 X = randn(10,2,4);
 Y = randn(2,10,4);
-matOrig = tprod(X,Y);
-[~,~,~,r] = tsvd(matOrig)
+matOrigT = tprod(X,Y);
+[~,~,~,r] = tsvd(matOrigT,rho)          
 matMask = rand([10,10,4])>0.50;
-matSampled = matOrig.*matMask;
+matSampled = matOrigT.*matMask;
 
-[X,Y] = tam(matSampled,matMask,iterate_times,r);
-Recovered = tprod(X,Y);
-sum(sum(sum((Recovered - matOrig).^2)))/sum(sum(sum(matOrig.^2)))
+iterate_times = 100;
+[X,Y] = tam(matOrigT,matSampled,matMask,iterate_times,r);
+recovered = tprod(X,Y);
+norm(recovered(:) - matOrigT(:))/norm(matOrigT(:))

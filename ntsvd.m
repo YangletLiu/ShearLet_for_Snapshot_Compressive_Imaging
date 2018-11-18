@@ -23,7 +23,7 @@
 % Edited by       :  G. Ely, S. Aeron, Z. Zhang, ECE, Tufts Univ. 03/16/2015
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [U,S,V,r] = ntsvd(A,fftOP,parOP)
+function [U,S,V] = ntsvd(A,fftOP,parOP)
 
 % determine size of tensor
 sa = size(A);                               %各个维度的大小
