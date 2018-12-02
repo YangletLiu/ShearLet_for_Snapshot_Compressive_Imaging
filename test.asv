@@ -55,12 +55,11 @@ end
 Xrec = SLshearrec2D(coeffs,shearletSystem);
 figure(1)
 %imshow(X);
-imshow(X,[]);
+imagesc(X);
+pause(2);
 title("≥ı º");
-figure(2)
-imshow(Xnoise,[]);
+imshow(Xnoise);
 title("‘Î…˘");
-figure(3)
-imshow(Xrec,[]);
+imshow(Xrec);
 title("Ωµ‘Î");
 PSNR = SLcomputePSNR(X,Xrec);
