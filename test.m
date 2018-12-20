@@ -1,66 +1,43 @@
-% % decompose: construct a shearlet sytem and call the SLsheardec method
-% % a 2D example
-% tic
-% sizeX = 500;
-% sizeY = 600;
-% useGPU = 0;
-% 
-% data2D = randn(sizeX,sizeY);
-% system = SLgetShearletSystem2D(useGPU,sizeX,sizeY,4);%这个4会使用默认的shearLevel = ceil((1:4)/2)，即[1,1,2,2]
-% shearletCoefficients2D = SLsheardec2D(data2D,system);
-% toc
-% 
-% % reconstruction
-% reconstruction2D = SLshearrec2D(shearletCoefficients2D,system);
-% RSE = norm(data2D-reconstruction2D)/norm(data2D);
-% sprintf("RSE is %f",RSE)
-% 
-% 
-% % serial decompose: only the coefficients associated to the translates of
-% % one single shearlet are available at one point in time
-% % a 3D example
-% tic
-% sizeX = 192;
-% sizeY = 192;
-% sizeZ = 192;
-% data3D = randn(sizeX,sizeY,sizeZ);
-% [Xfreq,Xrec,preparedFilters,dualFrameWeightsCurr,shearletIdxs] = SLprepareSerial3D(useGPU,data3D,2);
-% for j = 1:size(shearletIdxs,1)
-%     shearletIdx = shearletIdxs(j,:);
-%     [coefficients3D,shearlet,dualFrameWeightsCurr,RMS] = ...
-%         SLsheardecSerial3D(Xfreq,shearletIdx,preparedFilters,dualFrameWeightsCurr);
-%     %reconstruction
-%     Xrec = SLshearrecSerial3D(coefficients3D,shearlet,Xrec);
-% end
-% toc
-% reconstruction = SLfinishSerial3D(Xrec,dualFrameWeightsCurr);
-% RSE = norm(data2D-reconstruction2D)/norm(data2D);
-% sprintf("RSE is %f",RSE)
+clear
+clc
+addpath('dataset')
+load("kobe32_cacti.mat") %orig,mean,mask
 
-% image denosing
-
-sigma = 30;
-scales = 4;
-thresholdingFactors = [0 3 3 4 4];
-load("kobe32_cacti.mat")
-X = orig(:,:,1);
-Xnoise = X +sigma*randn(size(X));
-shearletSystem = SLgetShearletSystem2D(0,size(X,1),size(X,2),scales);
-coeffs = SLsheardec2D(Xnoise,shearletSystem);
-for j = 1:shearletSystem.nShearlets
-    shearletIdx = shearletSystem.shearletIdxs(j,:);
-    coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j))>...
-        thresholdingFactors(shearletIdx(2)+1)*shearletSystem.RMS(j)*sigma);
+maskFrames = size(mask,3);
+[width, height, frames] = size(orig);
+unavailableSampled = zeros(width*height,frames);  % calculate the the fai*x for each frame
+for i=1:frames
+    mask_i = mask(:,:,mod(i,maskFrames)+1);
+    mask_i = diag(sparse(mask_i(:)));
+    orig_i = orig(:,:,i);
+    unavailableSampled(:,i) = mask_i * orig_i(:);
 end
-Xrec = SLshearrec2D(coeffs,shearletSystem);
-figure(1)
-%imshow(X);
-imshow(X,[]);
-title("初始");
-figure(2)
-imshow(Xnoise,[]);
-title("噪声");
-figure(3)
-imshow(Xrec,[]);
-title("降噪");
-PSNR = SLcomputePSNR(X,Xrec);
+fai = mask(:,:,1);
+x1 = orig(:,:,1);
+
+% build the Fourier matrix and calculate the kron multiplification of it
+if width ~=height
+    sprintf("the height and width of image are not coordinate")
+else % haven't dealt with the matrix not of 2^k size
+    N = width;
+    w = exp(-2*pi*1i/N);
+    F = zeros(width,height); % here it is 256*256 for kobe32-cacti
+    for i =1:N
+        for j = 1:N
+            F(i,j) = w^((i-1)*(j-1));
+        end
+    end
+    F = F/sqrt(width);
+    f = kron(F,F); % may OOM
+end
+
+% capital-frequency,lowercase-time
+scales = 4;
+shearletSystem = SLgetShearletSystem2D(0,size(x1,1),size(x1,2),scales);
+s = SLsheardec2D(x1,shearletSystem);
+G = shearletSystem.dualFrameWeights; 
+H = shearletSystem.shearlets; 
+A = Fai*Psi_r;
+% X = H_r*S    H_r = H./G   S = H'.*X
+recover = FISTA();
+
