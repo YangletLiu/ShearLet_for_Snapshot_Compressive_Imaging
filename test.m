@@ -12,18 +12,43 @@ for i=1:frames
     orig_i = orig(:,:,i);
     unavailableSampled(:,i) = mask_i * orig_i(:);
 end
-fai = mask(:,:,1);
-x1 = orig(:,:,1);
 
+M = mask(:,:,1);
+Fai = M; % here we don't reduce the dimension, so sampling is the same as M
+Fai = diag(sparse(square2col(Fai)));
+x = orig(:,:,1); % n¡Án  no need to transform to N¡Á1
+y = col2square(unavailableSampled(:,1)); 
+A = Fai;    % A = Fai*Psi_r in fact, only for test or initial for back tracking
+singular = svds(A.'*A,1);
+L = 2*singular;
+% we don't need to build Psi_r in real other than here for the constant L, 
+% we use math tricks to find another way to represent shearlet transform,
+% so try to use back tracking version for L that can't easily compute
+
+% each parallel sub matrix is moved to third dimension
 % capital-frequency,lowercase-time
 scales = 4;
-shearletSystem = SLgetShearletSystem2D(0,size(x1,1),size(x1,2),scales);
-s = SLsheardec2D(x1,shearletSystem);
-G = shearletSystem.dualFrameWeights; 
-H = shearletSystem.shearlets; 
-A = Fai*Psi_r;
+shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),scales);
+s_real = SLsheardec2D(x,shearletSystem); % n¡Án¡ÁI, s is the coefficients in the shearlet domain
+G = shearletSystem.dualFrameWeights; % n¡Án
+H = shearletSystem.shearlets; % n¡Án¡ÁI
 I = shearletSystem.nShearlets;
-H_r = H./G;
-% X = H_r*S     S = H'.*X
-recover = FISTA();
+H_r = zeros(size(H));
+for i=1:I 
+    H_r(:,:,I) = H(:,:,I)./G;
+end
+% X = sum(H_r.*S,3)     S = H'.*X
+iteration = 10;
+lambda = 0.001;
+recover = FISTA(iteration,I,H,H_r,G,M,Fai,y,L,lambda);
+x_recover = ifft(recover);
+psnr = PSNR(x,x_recover);
+sprintf("the psnr is %f",psnr)
+% use fft2shift or not?
 
+figure;
+subplot(1,2,1);
+imagesc(x);
+subplot(1,2,2)
+imagesc(real(x_recover));
+colormap(gray);
