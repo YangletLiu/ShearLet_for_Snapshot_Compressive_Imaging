@@ -34,11 +34,12 @@ G = shearletSystem.dualFrameWeights; % n¡Án
 H = shearletSystem.shearlets; % n¡Án¡ÁI
 I = shearletSystem.nShearlets;
 H_r = zeros(size(H));
+
 for i=1:I 
-    H_r(:,:,I) = H(:,:,I)./G;
+    H_r(:,:,i) = H(:,:,i)./G;
 end
 % X = sum(H_r.*S,3)     S = H'.*X
-iteration = 10;
+iteration = 1;
 lambda = 0.001;
 recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);
 x_recover = ifft2withShift(recover);

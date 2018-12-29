@@ -14,7 +14,7 @@ for i=1:frames
 end
 
 M = mask(:,:,1);
-Fai = M; % here we don't reduce the dimension, so sampling is the same as M Fai is the sampling matrix
+Fai = M; % here we don't reduce the dimension, so sampling is the same as M (Fai is the sampling matrix)
 Fai = diag(sparse(square2col(Fai)));
 x = orig(:,:,1); % n¡Án  no need to transform to N¡Á1
 y = col2square(unavailableSampled(:,1)); 
@@ -34,21 +34,21 @@ G = shearletSystem.dualFrameWeights; % n¡Án
 H = shearletSystem.shearlets; % n¡Án¡ÁI
 I = shearletSystem.nShearlets;
 H_r = zeros(size(H));
+
 for i=1:I 
-    H_r(:,:,I) = H(:,:,I)./G;
+    H_r(:,:,i) = H(:,:,i)./G;
 end
 % X = sum(H_r.*S,3)     S = H'.*X
 iteration = 10;
 lambda = 0.001;
 recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);
-x_recover = ifft(recover);
+x_recover = ifft2withShift(recover);
 psnr = PSNR(x,x_recover);
 sprintf("the psnr is %f",psnr)
-% use fft2shift or not?
 
 figure;
 subplot(1,2,1);
 imagesc(x);
 subplot(1,2,2)
-imagesc(real(x_recover));
+imagesc(x_recover);
 colormap(gray);
