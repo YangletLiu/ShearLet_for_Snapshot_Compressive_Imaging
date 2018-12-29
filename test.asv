@@ -14,7 +14,7 @@ for i=1:frames
 end
 
 M = mask(:,:,1);
-Fai = M; % here we don't reduce the dimension, so sampling is the same as M (Fai is the sampling matrix)
+Fai = M; % here we don't reduce the dimension, so sampling is the same as M Fai is the sampling matrix
 Fai = diag(sparse(square2col(Fai)));
 x = orig(:,:,1); % n¡Án  no need to transform to N¡Á1
 y = col2square(unavailableSampled(:,1)); 
@@ -41,13 +41,14 @@ end
 iteration = 10;
 lambda = 0.001;
 recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);
-x_recover = ifft2withShift(recover);
+x_recover = ifft(recover);
 psnr = PSNR(x,x_recover);
 sprintf("the psnr is %f",psnr)
+% use fft2shift or not?
 
 figure;
 subplot(1,2,1);
 imagesc(x);
 subplot(1,2,2)
-imagesc(x_recover);
+imagesc(real(x_recover));
 colormap(gray);
