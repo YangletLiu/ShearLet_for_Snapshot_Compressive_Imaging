@@ -1,6 +1,6 @@
 clear
 clc
-addpath('dataset')
+addpath(genpath(pwd))
 load("kobe32_cacti.mat") %orig,mean,mask
 
 temp = orig(:,:,1);
@@ -44,12 +44,12 @@ for i=1:I
     H_r(:,:,i) = H(:,:,i)./G;
 end
 % X = sum(H_r.*S,3)     S = conj(H).*X
-iteration = 200;
+iteration = 1;
 lambda = 0.0001;
 recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);
 x_recover = ifft2withShift(recover);
-psnr = SNR(x,x_recover);
-sprintf("the snr is %f",psnr)
+snr = SNR(x,x_recover);
+sprintf("the snr is %f",snr)
 
 x = x*normalize;
 y = y*normalize;
