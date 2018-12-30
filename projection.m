@@ -1,9 +1,6 @@
 function p = projection(z)
-    if(real(z)>1) 
-        p = 1;
-    elseif(real(z)<0)
-        p = 0;
-    else
-        p = real(z);
-    end
+    % restrict the real part of z to be in the interval [0,1]
+    p = real(z);
+    p(real(z)>1) = 1;
+    p(real(z)<0) = 0;
 end

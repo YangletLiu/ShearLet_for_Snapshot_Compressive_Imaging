@@ -7,8 +7,6 @@ function u = prox(u,L,lambda)
     for i = 1:length(u)
         if(u(i)>beta)
             u(i) = u(i)-beta;
-        elseif(u(i)>0)
-            u(i) = 0;
         elseif(u(i)<-beta)
             u(i) = beta-u(i);
         else
