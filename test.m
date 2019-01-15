@@ -3,6 +3,7 @@ clc
 addpath(genpath(pwd))
 load("kobe32_cacti.mat") %orig,mean,mask
 
+%% FISTA---------------------------------------------------------------------------------------
 temp = orig(:,:,1);
 normalize = max(temp(:));
 orig = orig/normalize;
@@ -22,10 +23,7 @@ Fai = M; % here we don't reduce the dimension, so sampling is the same as M (Fai
 Fai = diag(sparse(square2col(Fai)));
 x = orig(:,:,1); % n¡Án  no need to transform to N¡Á1
 y = col2square(unavailableSampled(:,1)); 
-A = Fai;    % A = Fai*Psi_r in fact, only for test or initial for back tracking
-singular = svds(A.'*A,1);
-L = 2*singular; % wrong? too small, try to use artificial parameter
-L = 8;
+
 % we don't need to build Psi_r in real other than here for the constant L, 
 % we use math tricks to find another way to represent shearlet transform,
 % so try to use back tracking version for L that can't easily compute
@@ -43,6 +41,10 @@ H_r = zeros(size(H));
 for i=1:I 
     H_r(:,:,i) = H(:,:,i)./G;
 end
+% L is the Lipschitz constant
+L = max(H_r(:));
+L = 2*L^2;
+
 % X = sum(H_r.*S,3)     S = conj(H).*X
 iteration = 10;
 lambda = 0.00075;
@@ -66,31 +68,31 @@ subplot(1,3,3)
 imagesc(x_recover);
 colormap(gray);
 
-%% example from shearlab----------------------------------------------------------------------
-% iteration = 100;
-% img = orig(:,:,1);
-% imgMasked = col2square(unavailableSampled(:,1));
-% mask1 = M;
-% imgInpainted = 0;
-% coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked,shearletSystem),shearletSystem);
-% delta = max(abs(coeffsNormalized(:)));
-% stopFactor = 0.005;
-% lambda = (stopFactor)^(1/(iteration-1));
-% for i=1:iteration
-%     res = mask1.*(imgMasked-imgInpainted);
-%     coeffs = SLsheardec2D(imgInpainted+res,shearletSystem);
-%     coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);            
-%     imgInpainted = SLshearrec2D(coeffs,shearletSystem);
-%     delta=delta*lambda;
-%     disp(i);
-% end  
-% snr = SNR(img,imgInpainted);
-% sprintf("the snr is %f",snr)
-% figure;
-% subplot(1,3,1);
-% imagesc(img);
-% subplot(1,3,2);
-% imagesc(imgMasked);
-% subplot(1,3,3);
-% imagesc(imgInpainted);
-% colormap(gray);
+%% shrinkage directly, from shearlab--------------------------------------------------------------
+iteration = 100;
+img = orig(:,:,1);
+imgMasked = col2square(unavailableSampled(:,1));
+mask1 = M;
+imgInpainted = 0;
+coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked,shearletSystem),shearletSystem);
+delta = max(abs(coeffsNormalized(:)));
+stopFactor = 0.005;
+lambda = (stopFactor)^(1/(iteration-1));
+for i=1:iteration
+    res = mask1.*(imgMasked-imgInpainted);
+    coeffs = SLsheardec2D(imgInpainted+res,shearletSystem);
+    coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);            
+    imgInpainted = SLshearrec2D(coeffs,shearletSystem);
+    delta=delta*lambda;
+    disp(i);
+end  
+psnr = PSNR(img,imgInpainted);
+sprintf("the Psnr is %f",psnr)
+figure;
+subplot(1,3,1);
+imagesc(img);
+subplot(1,3,2);
+imagesc(imgMasked);
+subplot(1,3,3);
+imagesc(imgInpainted);
+colormap(gray);
