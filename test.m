@@ -44,16 +44,18 @@ for i=1:I
     H_r(:,:,i) = H(:,:,i)./G;
 end
 % X = sum(H_r.*S,3)     S = conj(H).*X
-iteration = 1;
-lambda = 0.0001;
+iteration = 10;
+lambda = 0.00075;
 recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);
 x_recover = ifft2withShift(recover);
-snr = SNR(x,x_recover);
-sprintf("the snr is %f",snr)
 
 x = x*normalize;
 y = y*normalize;
 x_recover = x_recover*normalize;
+
+
+psnr = PSNR(x,x_recover);
+sprintf("the psnr is %f",psnr)
 
 figure;
 subplot(1,3,1);
@@ -63,3 +65,32 @@ imagesc(y);
 subplot(1,3,3)
 imagesc(x_recover);
 colormap(gray);
+
+%% example from shearlab----------------------------------------------------------------------
+% iteration = 100;
+% img = orig(:,:,1);
+% imgMasked = col2square(unavailableSampled(:,1));
+% mask1 = M;
+% imgInpainted = 0;
+% coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked,shearletSystem),shearletSystem);
+% delta = max(abs(coeffsNormalized(:)));
+% stopFactor = 0.005;
+% lambda = (stopFactor)^(1/(iteration-1));
+% for i=1:iteration
+%     res = mask1.*(imgMasked-imgInpainted);
+%     coeffs = SLsheardec2D(imgInpainted+res,shearletSystem);
+%     coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);            
+%     imgInpainted = SLshearrec2D(coeffs,shearletSystem);
+%     delta=delta*lambda;
+%     disp(i);
+% end  
+% snr = SNR(img,imgInpainted);
+% sprintf("the snr is %f",snr)
+% figure;
+% subplot(1,3,1);
+% imagesc(img);
+% subplot(1,3,2);
+% imagesc(imgMasked);
+% subplot(1,3,3);
+% imagesc(imgInpainted);
+% colormap(gray);

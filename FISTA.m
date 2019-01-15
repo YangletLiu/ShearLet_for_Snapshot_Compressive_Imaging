@@ -14,7 +14,6 @@ function X = FISTA(iteration,I,H,H_r,G,M,y,L,lambda)
     X1 = B; 
     t1 = 1;
     for k=1:iteration
-        % D = B.*(1-1/L*M./G)+1/L*M'.*fft2withShift(y)./G;
         D = B.*(1-1/L*M./G)+1/L*M.*fft2withShift(y)./G;
         X2 = 0;
         for i = 1:I
@@ -24,11 +23,11 @@ function X = FISTA(iteration,I,H,H_r,G,M,y,L,lambda)
             X2 = X2 + H_r(:,:,i).*S(:,:,i);
         end
         x = ifft2withShift(X2);
-        % x = real(x); if isn't normalized, don't use projection
         x = projection(x);
         X2 = fft2withShift(x);
         t2 = (1+sqrt(1+4*t1^2))/2;
         B = X2 + (t1-1)/t2*(X2-X1);
+        t1 = t2;
         X1 = X2;
     end
     X = X2;
