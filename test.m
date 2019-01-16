@@ -69,30 +69,30 @@ imagesc(x_recover);
 colormap(gray);
 
 %% shrinkage directly, from shearlab--------------------------------------------------------------
-iteration = 100;
-img = orig(:,:,1);
-imgMasked = col2square(unavailableSampled(:,1));
-mask1 = M;
-imgInpainted = 0;
-coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked,shearletSystem),shearletSystem);
-delta = max(abs(coeffsNormalized(:)));
-stopFactor = 0.005;
-lambda = (stopFactor)^(1/(iteration-1));
-for i=1:iteration
-    res = mask1.*(imgMasked-imgInpainted);
-    coeffs = SLsheardec2D(imgInpainted+res,shearletSystem);
-    coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);            
-    imgInpainted = SLshearrec2D(coeffs,shearletSystem);
-    delta=delta*lambda;
-    disp(i);
-end  
-psnr = PSNR(img,imgInpainted);
-sprintf("the Psnr is %f",psnr)
-figure;
-subplot(1,3,1);
-imagesc(img);
-subplot(1,3,2);
-imagesc(imgMasked);
-subplot(1,3,3);
-imagesc(imgInpainted);
-colormap(gray);
+% iteration = 100;
+% img = orig(:,:,1);
+% imgMasked = col2square(unavailableSampled(:,1));
+% mask1 = M;
+% imgInpainted = 0;
+% coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked,shearletSystem),shearletSystem);
+% delta = max(abs(coeffsNormalized(:)));
+% stopFactor = 0.005;
+% lambda = (stopFactor)^(1/(iteration-1));
+% for i=1:iteration
+%     res = mask1.*(imgMasked-imgInpainted);
+%     coeffs = SLsheardec2D(imgInpainted+res,shearletSystem);
+%     coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);            
+%     imgInpainted = SLshearrec2D(coeffs,shearletSystem);
+%     delta=delta*lambda;
+%     disp(i);
+% end  
+% psnr = PSNR(img,imgInpainted);
+% sprintf("the Psnr is %f",psnr)
+% figure;
+% subplot(1,3,1);
+% imagesc(img);
+% subplot(1,3,2);
+% imagesc(imgMasked);
+% subplot(1,3,3);
+% imagesc(imgInpainted);
+% colormap(gray);
