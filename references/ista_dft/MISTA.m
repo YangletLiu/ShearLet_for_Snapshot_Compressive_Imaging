@@ -7,7 +7,7 @@
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
 
 %%
-function [x, obj]  = MISTA(A, AT, x, b, LAMBDA, L, n, COST, bfig)
+function [X, obj]  = MISTA(A, AT, X, b, LAMBDA, L, n, COST, bfig)
 
 if (nargin < 9)
     bfig = false;
@@ -25,12 +25,12 @@ end
 obj     = zeros(n, 1);
 
 for i = 1:n
-    x       = threshold(x - 1/L*AT(A(x) - b), LAMBDA/L); % 这里需要保证做的是线性变换，所以A
+    X       = threshold(X - 1/L*AT(A(X) - b), LAMBDA/L); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
     
-    obj(i)  = COST.function(x);
+    obj(i)  = COST.function(X);
     
     if (bfig)
-        img_x = ifft2(x);
+        img_x = ifft2(X);
         figure(1); colormap gray;
         subplot(121); imagesc(img_x);           title([num2str(i) ' / ' num2str(n)]);
         subplot(122); semilogy(obj, '*-');  title(COST.equation);  xlabel('# of iteration');   ylabel('Objective'); 
@@ -39,7 +39,9 @@ for i = 1:n
     end
 end
 
-x   = gather(x);
+X   = gather(X);
 obj = gather(obj);
+
+%% add back tracking?
 
 end

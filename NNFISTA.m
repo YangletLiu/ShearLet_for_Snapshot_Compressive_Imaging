@@ -1,21 +1,20 @@
 function x = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
     % the discarded f is the 2D-DFT block circulant matrix, we know that f^-1 = f^H = f', which means f^H can also be represented as ifft2 
     % I is the nShearlets of the number of shearlets
-    % H is the shearlets
-    % H_r is the dual of shearlets, H_ri = H_i./G
-    % G is the dualFrameWeights in the calculation of shearlets
     % M is of size n×n, a mask matrix
     % y is the target n×n, we don't need do reduction so we can still use the square matrix instead of column of m×1
     % L is the Lipschitz constant fo f_2's gradient
     % lambda is a parameter to balance sparseness and approximation
+    % A and AT are functions perform linear transforms which are hard to be taken directly in the matrix format
+    
     x = y;
-    % t1 = 1; % no back-tracking
     s = SLsheardec2D(x,shearletSystem);
+    % s = zeros(size(M,1),size(M,2),I);
     cost = zeros(iteration);
     
+    % 迭代求解s并重构x进行观测
     for k=1:iteration
         D = s-1/L*AT(A(s)-y);
-        % 迭代求解s并重构x进行观测
         for i = 1:I
             u = D(:,:,i);
             s(:,:,i) = prox(u,L,lambda);
@@ -36,8 +35,5 @@ function x = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
         xlim([1, iteration]); grid on; grid minor;
         drawnow();
         disp(k);
-        
-        % t2 = (1+sqrt(1+4*t1^2))/2;
-        % t1 = t2;
     end
 end
