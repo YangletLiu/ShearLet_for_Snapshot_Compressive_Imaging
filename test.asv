@@ -31,13 +31,14 @@ end
 % L is the Lipschitz constant
 L = max(H_r(:));
 L = 2*L^2;
-L =6;
+L = 1;
+
 % X = sum(H_r.*S,3)     S = conj(H).*X
 iteration = 300;
-lambda = 100;
+lambda = 1;
 A = @(d) M.*SLshearrec2D(d,shearletSystem);
 % AT = @(d) SLsheardec2D(M.*d,shearletSystem);
-AT = @(d) ShearletHrT(M.*d,H_r);
+AT = @(d) ShearletAT(M.*d);
 x_recover = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT);
 psnr_x = PSNR(x,x_recover);
 sprintf("the psnr is %f",psnr_x)

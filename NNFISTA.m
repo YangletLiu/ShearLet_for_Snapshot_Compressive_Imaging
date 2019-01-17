@@ -21,6 +21,7 @@ function x = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
             s(:,:,i) = prox(u,L,lambda);
         end
         x = SLshearrec2D(s,shearletSystem);
+        x = real(x);
         
         L1 = @(x) norm(x, 1);
         L2 = @(x) power(norm(x, 'fro'), 2);
