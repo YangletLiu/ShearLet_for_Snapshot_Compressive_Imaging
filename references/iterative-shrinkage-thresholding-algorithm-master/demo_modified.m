@@ -53,7 +53,7 @@ x0      = zeros(size(x));
 L1              = @(x) norm(x, 1);
 L2              = @(x) power(norm(x, 'fro'), 2);
 COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
-COST.function	= @(x) 1/2 * L2(A(x) - y) + LAMBDA * L1(x);
+COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(x);
 
 %% RUN NEWTON METHOD
 if bgpu

@@ -1,4 +1,4 @@
-function X = SLshearrec2D(coeffs, shearletSystem)
+function x = SLshearrec2D(coeffs, shearletSystem)
 %SLshearrec2D 2D reconstruction of shearlet coefficients.
 %
 %Usage:
@@ -44,7 +44,7 @@ function X = SLshearrec2D(coeffs, shearletSystem)
     for j = 1:shearletSystem.nShearlets
         X = X+fftshift(fft2(ifftshift(coeffs(:,:,j)))).*shearletSystem.shearlets(:,:,j);
     end
-    X = fftshift(ifft2(ifftshift((1./shearletSystem.dualFrameWeights).*X)));
+    x = fftshift(ifft2(ifftshift((1./shearletSystem.dualFrameWeights).*X)));
     
 end
 

@@ -4,25 +4,12 @@ addpath(genpath(pwd))
 load("kobe32_cacti.mat") %orig,mean,mask
 
 %% FISTA---------------------------------------------------------------------------------------
-temp = orig(:,:,1);
-normalize = max(temp(:));
-orig = orig/normalize;
-
 maskFrames = size(mask,3);
-[width, height, frames] = size(orig);
-unavailableSampled = zeros(width*height,frames);  % calculate the the fai*x for each frame
-for i=1:frames
-    mask_i = mask(:,:,mod(i,maskFrames)+1);
-    mask_i = diag(sparse(mask_i(:)));
-    orig_i = orig(:,:,i);
-    unavailableSampled(:,i) = mask_i * orig_i(:);
-end
-
+[height, width, frames] = size(orig);
+N = height*width;
 M = mask(:,:,1);
-Fai = M; % here we don't reduce the dimension, so sampling is the same as M (Fai is the sampling matrix)
-Fai = diag(sparse(square2col(Fai)));
 x = orig(:,:,1); % n×n  no need to transform to N×1
-y = col2square(unavailableSampled(:,1)); 
+y = M.*x; 
 
 % we don't need to build Psi_r in real other than here for the constant L, 
 % we use math tricks to find another way to represent shearlet transform,
@@ -44,22 +31,18 @@ end
 % L is the Lipschitz constant
 L = max(H_r(:));
 L = 2*L^2;
+L = 1;
 
 % X = sum(H_r.*S,3)     S = conj(H).*X
-iteration = 10;
-lambda = 0.00075;
-recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);
-x_recover = ifft2withShift(recover);
+iteration = 300;
+lambda = 1;
+A = @(d) M.*SLshearrec2D(d,shearletSystem);
+% AT = @(d) SLsheardec2D(M.*d,shearletSystem);
+x_recover = NFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT);
+psnr_x = PSNR(x,x_recover);
+sprintf("the psnr is %f",psnr_x)
 
-x = x*normalize;
-y = y*normalize;
-x_recover = x_recover*normalize;
-
-
-psnr = PSNR(x,x_recover);
-sprintf("the psnr is %f",psnr)
-
-figure;
+figure(1);
 subplot(1,3,1);
 imagesc(x);
 subplot(1,3,2);
@@ -68,27 +51,41 @@ subplot(1,3,3)
 imagesc(x_recover);
 colormap(gray);
 
-%% shrinkage directly, from shearlab--------------------------------------------------------------
-% iteration = 100;
+%% shrinkage directly, from shearlab 迭代选取重要程度不同的特征--------------------------------------------------------------
+% % % for Lena
+% % img = double(imread('dataset/lena.jpg'));
+% % mask = rand(512,512)>0.5;
+% % imgMasked = mask.*img;
+% % shearletSystem = SLgetShearletSystem2D(0,512,512,scales);
+% % stopFactor = 0.005;
+% % iteration = 20;
+% 
+% % for Kobe
 % img = orig(:,:,1);
-% imgMasked = col2square(unavailableSampled(:,1));
-% mask1 = M;
+% mask = M;
+% imgMasked = mask.*img;
+% stopFactor = 0.005; % 迭代到什么精细程度
+% iteration = 100;
+% 
 % imgInpainted = 0;
 % coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked,shearletSystem),shearletSystem);
 % delta = max(abs(coeffsNormalized(:)));
-% stopFactor = 0.005;
 % lambda = (stopFactor)^(1/(iteration-1));
 % for i=1:iteration
-%     res = mask1.*(imgMasked-imgInpainted);
+%     res = mask.*(imgMasked-imgInpainted);
 %     coeffs = SLsheardec2D(imgInpainted+res,shearletSystem);
 %     coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);            
 %     imgInpainted = SLshearrec2D(coeffs,shearletSystem);
+%     figure(2);
+%     colormap(gray);
+%     imagesc(imgInpainted);
+%     drawnow();
 %     delta=delta*lambda;
 %     disp(i);
 % end  
-% psnr = PSNR(img,imgInpainted);
-% sprintf("the Psnr is %f",psnr)
-% figure;
+% psnr_img = PSNR(img,imgInpainted);
+% sprintf("the Psnr is %f",psnr_img)
+% figure(3);
 % subplot(1,3,1);
 % imagesc(img);
 % subplot(1,3,2);

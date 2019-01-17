@@ -8,14 +8,32 @@ sampled = zeros(width*height,frames/maskFrames);
 unavailableSampled = zeros(width*height,frames);
 
 for i=1:frames
-    mask_i = mask(:,:,mod(i,maskFrames)+1);
+    pos = mod(i,maskFrames);
+    if pos == 0
+        mask_i = mask(:,:,maskFrames);
+    else
+        mask_i = mask(:,:,pos);
+    end
     mask_i = diag(sparse(mask_i(:)));
     orig_i = orig(:,:,i);
     unavailableSampled(:,i) = mask_i * orig_i(:);
     sampled(:,ceil(i/maskFrames)) = sampled(:,ceil(i/maskFrames)) + mask_i * orig_i(:);
 end
+
+% 有点问题
+masked1 = mask(:,:,1).*orig(:,:,1);
+masked2 = col2square(unavailableSampled(:,1));
+display(sum(sum(masked1 - masked2)));
+figure(1);
+colormap(gray);
+subplot(121);
+imagesc(masked1);
+subplot(122)
+imagesc(masked2);
+
 unavailableSampled = unavailableSampled(:); % 不能获取到的，单张图的sample
 % sampled也即是meas(:)
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 maskSum = 0;
@@ -37,4 +55,4 @@ for i=1:frames
 end
 sampledUnfold = sampledUnfold(:);
 % 这个对采样的预处理很合理，非常接近真实的采样值，也就是说可以简单地从复合的采样中恢复出对每一帧的采样
-(sampledUnfold-unavailableSampled)/sum(unavailableSampled) % =6.5442e-17的相对误差
+sum(sampledUnfold-unavailableSampled)/sum(unavailableSampled) % =-7.7364e-17的相对误差

@@ -1,4 +1,4 @@
-function x = FISTA(iteration,I,H,H_r,G,M,y,L,lambda)
+function x = NFISTA(iteration,I,H,H_r,G,M,y,L,lambda)
     % the discarded f is the 2D-DFT block circulant matrix, we know that f^-1 = f^H = f', which means f^H can also be represented as ifft2 
     % I is the nShearlets of the number of shearlets
     % H is the shearlets
@@ -10,22 +10,21 @@ function x = FISTA(iteration,I,H,H_r,G,M,y,L,lambda)
     % lambda is a parameter to balance sparseness and approximation
     s = zeros(size(H));
     S = zeros(size(H));
-    B = fft2withShift(y); % here we only need to transform matrix y to the Fourier domain to initalize the X, or B
-    X1 = B; 
-    t1 = 1;
+    X = fft2withShift(y); % here we only need to transform matrix y to the Fourier domain to initalize the X, or B 
+    x = y;
+    % t1 = 1; % no back-tracking
     cost = zeros(iteration);
     % 将FISTA与恢复合并
     for k=1:iteration
-        D = B.*(1-1/L*M./G)+1/L*M.*fft2withShift(y)./G;
-        X2 = 0;
+        D = X-1/L*fft2withShift(M.*x)./G+1/L*fft2withShift(M.*y)./G;
+        X = 0;
         for i = 1:I
             u = real(ifft2withShift(conj(H(:,:,i)).*D));
             s(:,:,i) = prox(u,L,lambda);
             S(:,:,i) = fft2withShift(s(:,:,i));
-            X2 = X2 + H_r(:,:,i).*S(:,:,i);
+            X = X + H_r(:,:,i).*S(:,:,i);
         end
-        x = ifft2withShift(X2);
-        x = projection(x);
+        x = ifft2withShift(X);
         
         L1 = @(x) norm(x, 1);
         L2 = @(x) power(norm(x, 'fro'), 2);
@@ -41,12 +40,7 @@ function x = FISTA(iteration,I,H,H_r,G,M,y,L,lambda)
         drawnow();
         disp(k);
         
-        X2 = fft2withShift(x);
-        t2 = (1+sqrt(1+4*t1^2))/2;
-        B = X2 + (t1-1)/t2*(X2-X1);
-        t1 = t2;
-        X1 = X2;
+        % t2 = (1+sqrt(1+4*t1^2))/2;
+        % t1 = t2;
     end
-    X = X2;
-    x=ifft2withShift(X);
 end
