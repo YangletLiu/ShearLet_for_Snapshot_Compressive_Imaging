@@ -1,31 +1,26 @@
-function x = FISTA(iteration,I,H,H_r,G,M,y,L,lambda)
+function x = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
     % the discarded f is the 2D-DFT block circulant matrix, we know that f^-1 = f^H = f', which means f^H can also be represented as ifft2 
     % I is the nShearlets of the number of shearlets
-    % H is the shearlets
-    % H_r is the dual of shearlets, H_ri = H_i./G
-    % G is the dualFrameWeights in the calculation of shearlets
     % M is of size n×n, a mask matrix
     % y is the target n×n, we don't need do reduction so we can still use the square matrix instead of column of m×1
     % L is the Lipschitz constant fo f_2's gradient
     % lambda is a parameter to balance sparseness and approximation
-    s = zeros(size(H));
-    S = zeros(size(H));
-    B = fft2withShift(y); % here we only need to transform matrix y to the Fourier domain to initalize the X, or B
-    X1 = B; 
-    t1 = 1;
+    % A and AT are functions perform linear transforms which are hard to be taken directly in the matrix format
+    
+    x = y;
+    s = SLsheardec2D(x,shearletSystem);
+    % s = zeros(size(M,1),size(M,2),I);
     cost = zeros(iteration);
-    % 将FISTA与恢复合并
+    
+    % 迭代求解s并重构x进行观测
     for k=1:iteration
-        D = B.*(1-1/L*M./G)+1/L*M.*fft2withShift(y)./G;
-        X2 = 0;
+        D = s-1/L*AT(A(s)-y);
         for i = 1:I
-            u = real(ifft2withShift(conj(H(:,:,i)).*D));
-            s(:,:,i) = prox(u,L,lambda);
-            S(:,:,i) = fft2withShift(s(:,:,i));
-            X2 = X2 + H_r(:,:,i).*S(:,:,i);
+            u = D(:,:,i);
+            s(:,:,i) = threshold(u,lambda/L);
         end
-        x = ifft2withShift(X2);
-        x = projection(x);
+        x = SLshearrec2D(s,shearletSystem);
+        x = real(x);
         
         L1 = @(x) norm(x, 1);
         L2 = @(x) power(norm(x, 'fro'), 2);
@@ -33,20 +28,12 @@ function x = FISTA(iteration,I,H,H_r,G,M,y,L,lambda)
         figure(1);
         colormap(gray);
         subplot(121);
-        imagesc(x);
+        imagesc(x);title([num2str(k) ' / ' num2str(iteration)]);
         subplot(122);
         semilogy(cost, '*-'); 
         xlabel('# of iteration'); ylabel('Objective'); 
         xlim([1, iteration]); grid on; grid minor;
         drawnow();
         disp(k);
-        
-        X2 = fft2withShift(x);
-        t2 = (1+sqrt(1+4*t1^2))/2;
-        B = X2 + (t1-1)/t2*(X2-X1);
-        t1 = t2;
-        X1 = X2;
     end
-    X = X2;
-    x=ifft2withShift(X);
 end

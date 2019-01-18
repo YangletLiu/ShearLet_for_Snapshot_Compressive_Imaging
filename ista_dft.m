@@ -19,7 +19,7 @@ bfig    = true;
 
 %% DATA GENERATION
 % for Kobe
-load("../../dataset/kobe32_cacti.mat") % orig,mean,mask
+load("kobe32_cacti.mat") % orig,mean,mask
 x       = orig(:,:,1:8);
 N       = 256;
 M = mask; 
