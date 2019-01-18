@@ -30,9 +30,9 @@ for i = 1:n
     obj(i)  = COST.function(X);
     
     if (bfig)
-        img_x = ifft2(X);
+        img_x = real(ifft2(X));
         figure(1); colormap gray;
-        subplot(121); imagesc(img_x);           title([num2str(i) ' / ' num2str(n)]);
+        subplot(121); imagesc(img_x(:,:,1));           title([num2str(i) ' / ' num2str(n)]);
         subplot(122); semilogy(obj, '*-');  title(COST.equation);  xlabel('# of iteration');   ylabel('Objective'); 
                                             xlim([1, n]);   grid on; grid minor;
         drawnow();
