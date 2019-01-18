@@ -21,15 +21,6 @@ for i=1:frames
 end
 
 % 有点问题
-masked1 = mask(:,:,1).*orig(:,:,1);
-masked2 = col2square(unavailableSampled(:,1));
-display(sum(sum(masked1 - masked2)));
-figure(1);
-colormap(gray);
-subplot(121);
-imagesc(masked1);
-subplot(122)
-imagesc(masked2);
 
 unavailableSampled = unavailableSampled(:); % 不能获取到的，单张图的sample
 % sampled也即是meas(:)
@@ -50,9 +41,24 @@ maskRadio(isnan(maskRadio)) = 0;
 
 sampledUnfold = zeros(size(sampled,1),frames);
 for i=1:frames
-    temp = maskRadio(:,:,mod(i,maskFrames)+1);
+    if mod(i,maskFrames)==0
+        temp = maskRadio(:,:,8);
+    else
+        temp = maskRadio(:,:,mod(i,maskFrames)); 
+    end
     sampledUnfold(:,i) = diag(sparse(temp(:)))*sampled(:,ceil(i/maskFrames));
 end
+
+masked1 = mask(:,:,1).*orig(:,:,1);
+masked2 = col2square(sampledUnfold(:,1));
+display(sum(sum(masked1 - masked2)));
+figure(1);
+colormap(gray);
+subplot(121);
+imagesc(masked1);
+subplot(122)
+imagesc(masked2);
+
 sampledUnfold = sampledUnfold(:);
 % 这个对采样的预处理很合理，非常接近真实的采样值，也就是说可以简单地从复合的采样中恢复出对每一帧的采样
 sum(sampledUnfold-unavailableSampled)/sum(unavailableSampled) % =-7.7364e-17的相对误差

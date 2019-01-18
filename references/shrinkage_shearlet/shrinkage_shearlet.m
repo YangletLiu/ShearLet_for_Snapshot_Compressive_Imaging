@@ -11,18 +11,43 @@
 load("../../dataset/kobe32_cacti.mat")
 img = orig(:,:,1:8);
 mask = mask(:,:,1:8);
-imgMasked = mask.*img;
+imgMasked=zeros(size(img,1),size(img,2));
+for j = 1:8
+    imgMasked = imgMasked + mask(:,:,j).*img(:,:,j);
+end
+imgMasked = imgMasked(:);
+
+%% 仅拿到了imgMasked和mask
+maskSum = 0;
+for i=1:8
+    maskSum = maskSum + mask(:,:,i);
+end
+
+maskRadio = zeros(size(mask));                                % 各mask在总体中的占比
+for i=1:8
+    maskRadio(:,:,i) = mask(:,:,i)./maskSum(:,:);
+end
+maskRadio(isnan(maskRadio)) = 0;
+
+sampledUnfold = zeros(256*256,8);
+for i=1:8
+    temp = maskRadio(:,:,i);
+    sampledUnfold(:,i) = diag(sparse(temp(:)))*imgMasked;
+end
+sampledUnfold = col2square(sampledUnfold(:),256*256,8);
+
+%%
 stopFactor = 0.005; % 迭代到什么精细程度
 iteration = 100;
 nor = max(img(:)) - min(img(:));
 
 imgInpainted = zeros(size(img));
 for j =1:8
-    coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked(:,:,j),shearletSystem),shearletSystem);
+    coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(sampledUnfold(:,:,j),shearletSystem),shearletSystem);
     delta = max(abs(coeffsNormalized(:)));
     lambda = (stopFactor)^(1/(iteration-1));
     for i=1:iteration
-        res = mask(:,:,j).*(imgMasked(:,:,j)-imgInpainted(:,:,j));
+        res = mask(:,:,j).*(sampledUnfold(:,:,j)-imgInpainted(:,:,j));
         coeffs = SLsheardec2D(imgInpainted(:,:,j)+res,shearletSystem);
         coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);            
         imgInpainted(:,:,j) = SLshearrec2D(coeffs,shearletSystem);
