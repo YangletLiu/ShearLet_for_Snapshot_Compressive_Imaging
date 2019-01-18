@@ -14,6 +14,7 @@ mask = mask(:,:,1);
 imgMasked = mask.*img;
 stopFactor = 0.005; % 迭代到什么精细程度
 iteration = 100;
+nor = max(img(:)) - min(img(:));
 
 imgInpainted = 0;
 coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(imgMasked,shearletSystem),shearletSystem);
@@ -26,18 +27,19 @@ for i=1:iteration
     imgInpainted = SLshearrec2D(coeffs,shearletSystem);
     figure(2);
     colormap(gray);
-    imagesc(imgInpainted);
+    imagesc(imgInpainted);title(['iteration : ' num2str(i, '%d'),'/',num2str(iteration,'%d')]);
     drawnow();
     delta=delta*lambda;
     disp(i);
 end  
-psnr_img = PSNR(img,imgInpainted);
-sprintf("the Psnr is %f",psnr_img)
+
+psnr_img = psnr(img/nor,imgInpainted/nor);
+ssim_img = ssim(img/nor,imgInpainted/nor);
 figure(3);
 subplot(1,3,1);
-imagesc(img);
+imagesc(img);title('orig');
 subplot(1,3,2);
-imagesc(imgMasked);
+imagesc(imgMasked);title('masked');
 subplot(1,3,3);
-imagesc(imgInpainted);
+imagesc(imgInpainted); title({'recon',['PSNR : ' num2str(psnr_img, '%.4f')], ['SSIM : ' num2str(ssim_img, '%.4f')]});
 colormap(gray);

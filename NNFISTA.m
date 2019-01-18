@@ -28,7 +28,7 @@ function x = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
         figure(1);
         colormap(gray);
         subplot(121);
-        imagesc(x);
+        imagesc(x);title([num2str(k) ' / ' num2str(iteration)]);
         subplot(122);
         semilogy(cost, '*-'); 
         xlabel('# of iteration'); ylabel('Objective'); 

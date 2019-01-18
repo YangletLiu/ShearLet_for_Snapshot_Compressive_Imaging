@@ -36,7 +36,6 @@ L = 5;
 iteration = 300;
 lambda = 2;
 A = @(d) M.*SLshearrec2D(d,shearletSystem);
-% AT = @(d) SLsheardec2D(M.*d,shearletSystem); 
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换
 AT = @(d) ShearletHrT(M.*d,H_r); 
 % x_recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);

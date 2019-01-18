@@ -81,13 +81,10 @@ figure(1);
 colormap gray;
 
 suptitle('ISTA Method');
-subplot(231);   imagesc(x);	axis image off;     title('ground truth');
-subplot(232);   imagesc(x_full);  	axis image off;     title('full-sample');
-subplot(234);   imagesc(x_low);  	axis image off;     title({'low-sample', ['MSE : ' num2str(mse_x_low, '%.4e')], ['PSNR : ' num2str(psnr_x_low, '%.4f')], ['SSIM : ' num2str(ssim_x_low, '%.4f')]});
-subplot(235);   imagesc(x_ista);  	axis image off;     title({'recon_{ISTA}', ['MSE : ' num2str(mse_x_ista, '%.4e')], ['PSNR : ' num2str(psnr_x_ista, '%.4f')], ['SSIM : ' num2str(ssim_x_ista, '%.4f')]});
+subplot(131);   imagesc(x);	axis image off;     title('orig');
+subplot(132);   imagesc(x_low);  	axis image off;     title({'masked', ['MSE : ' num2str(mse_x_low, '%.4e')], ['PSNR : ' num2str(psnr_x_low, '%.4f')], ['SSIM : ' num2str(ssim_x_low, '%.4f')]});
+subplot(133);   imagesc(x_ista);  	axis image off;     title({'recon_{ISTA}', ['MSE : ' num2str(mse_x_ista, '%.4e')], ['PSNR : ' num2str(psnr_x_ista, '%.4f')], ['SSIM : ' num2str(ssim_x_ista, '%.4f')]});
 
-subplot(2,3,[3,6]); semilogy(obj, '*-');    title(COST.equation);  xlabel('# of iteration');   ylabel('Cost function'); 
-                                            xlim([1, niter]);   grid on; grid minor;
 %% 后期做图像处理
 % 平滑处理
 mean3Sample = filter2(fspecial('average',3),x_ista); % 3均值滤波
