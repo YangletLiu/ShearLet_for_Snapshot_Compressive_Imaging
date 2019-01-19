@@ -9,6 +9,7 @@ maskFrames = size(mask,3);
 N = height*width;
 M = mask(:,:,1);
 x = orig(:,:,1); % n×n  no need to transform to N×1
+nor = max(x(:));
 y = M.*x; 
 
 % we don't need to build Psi_r in real other than here for the constant L, 
@@ -31,17 +32,18 @@ end
 % L is the Lipschitz constant
 L = max(H_r(:));
 L = 2*L^2;
-L = 5;
+L = 4;
 
-iteration = 300;
-lambda = 2;
-A = @(d) M.*SLshearrec2D(d,shearletSystem);
+iteration = 100;
+lambda = 4000;
+A = @(d) M.*SLshearrec2D(ifft2withShift(d),shearletSystem);
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换
-AT = @(d) ShearletHrT(M.*d,H_r); 
-% x_recover = FISTA(iteration,I,H,H_r,G,M,y,L,lambda);
+AT = @(d) fft2withShift(ShearletHrT(M.*d,H_r)); 
 x_recover = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT);
-psnr_x = PSNR(x,x_recover);
+psnr_x = psnr(x/nor,x_recover/nor);
+ssim_x = ssim(x/nor,x_recover/nor);
 sprintf("the psnr is %f",psnr_x)
+
 
 figure(1);
 subplot(1,3,1);

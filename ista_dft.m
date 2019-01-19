@@ -24,7 +24,7 @@ x       = orig(:,:,1:8);
 N       = 256;
 M = mask; 
 LAMBDA  = 4000;
-L       = 4; 
+L       = 4;
 niter   = 100; 
 A       = @(x) sample(M,ifft2(x));
 AT      = @(y) fft2(sampleH(M,y));
@@ -36,7 +36,7 @@ x0      = zeros(size(x));
 L1              = @(x) norm(x, 1);
 L2              = @(x) power(norm(x, 'fro'), 2);
 COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
-COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(x(:));
+COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
 
 %% RUN NEWTON METHOD
 if bgpu

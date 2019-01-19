@@ -37,6 +37,7 @@ for i = 1:n
                                             xlim([1, n]);   grid on; grid minor;
         drawnow();
     end
+    %X = fft2(TV_denoising(ifft2(X),0.01,15));
 end
 
 X   = gather(X);

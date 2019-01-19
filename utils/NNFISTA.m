@@ -10,21 +10,23 @@ function x = NNFISTA(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
     x = y;
     s = SLsheardec2D(x,shearletSystem);
     % s = zeros(size(M,1),size(M,2),I);
+    S = fft2withShift(s);
     cost = zeros(iteration);
     
     % 迭代求解s并重构x进行观测
     for k=1:iteration
-        D = s-1/L*AT(A(s)-y);
+        D = S-1/L*AT(A(S)-y);
         for i = 1:I
-            u = D(:,:,i);
-            s(:,:,i) = threshold(u,lambda/L);
+            U = D(:,:,i);
+            S(:,:,i) = threshold(U,lambda/L);
         end
+        s = ifft2withShift(S);
         x = SLshearrec2D(s,shearletSystem);
         x = real(x);
         
         L1 = @(x) norm(x, 1);
         L2 = @(x) power(norm(x, 'fro'), 2);
-        cost(k) = 1/2 * L2(M.*x - y) + lambda * L1(s(:)); % 实际为s
+        cost(k) = 1/2 * L2(M.*x - y) + lambda * L1(S(:)); 
         figure(1);
         colormap(gray);
         subplot(121);
