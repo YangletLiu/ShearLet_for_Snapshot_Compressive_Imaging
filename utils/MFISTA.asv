@@ -7,7 +7,7 @@
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
 
 %%
-function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, iteration, COST, bfig)
+function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, n, COST, bfig)
 
 if (nargin < 9)
     bfig = false;
@@ -19,15 +19,15 @@ if (nargin < 8 || isempty(COST))
 end
 
 if (nargin < 7)
-    iteration   = 1e2;
+    n   = 1e2;
 end
 
-obj     = zeros(iteration, 1);
+obj     = zeros(n, 1);
 
 t1 = 1;
 X = X0;
 
-for i = 1:iteration
+for i = 1:n
     X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA/L); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
     
     t2 = (1+sqrt(1+4*t1^2))/2;
@@ -40,27 +40,19 @@ for i = 1:iteration
     if (bfig)
         img_x = real(ifft2(X));
         figure(1); colormap gray;
-        subplot(121); imagesc(img_x(:,:,1));           title([num2str(i) ' / ' num2str(iteration)]);
+        subplot(121); imagesc(img_x(:,:,1));           title([num2str(i) ' / ' num2str(n)]);
         subplot(122); semilogy(obj, '*-');  title(COST.equation);  xlabel('# of iteration');   ylabel('Objective'); 
-                                            xlim([1, iteration]);   grid on; grid minor;
+                                            xlim([1, n]);   grid on; grid minor;
         drawnow();
     end
-    
-    % denoise
     % X = fft2(TV_denoising(ifft2(X),0.1,100));
     
-    % filter
-%     if iteration - i < 5
-%         x =ifft2(X);
-%         sobelSample = zeros(size(x));
-%         for j = 1:8
-%             sobelSample(:,:,j) = filter2(fspecial('sobel'),x(:,:,j))/(max(x(:))-min(x(:)));
-%         end  
-%         x = x + sobelSample;
-%         X = fft2(x);
-%     end
-    
-    
+    x =ifft2(X);
+    sobelSample = zeros(size(x));
+    X = fft2(temp);
+    for j = 1:8
+        sobelSample(:,:,j) = filter2(fspecial('sobel'),x_ista(:,:,j))/(max(x_ista(:))-min(x_ista(:)));
+    end
 end
 
 end
