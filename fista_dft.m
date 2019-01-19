@@ -19,8 +19,8 @@ load("kobe32_cacti.mat") % orig,mean,mask
 x       = orig(:,:,1:8);
 N       = 256;
 M = mask; 
-LAMBDA  = 4000;
-L       = 4;
+LAMBDA  = 800;
+L       = 10;
 niter   = 100; 
 A       = @(x) sample(M,ifft2(x));
 AT      = @(y) fft2(sampleH(M,y));
@@ -36,7 +36,7 @@ COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
 
 %% RUN NEWTON METHOD
 
-[x_ista, obj]	= MISTA(A, AT, x0, y, LAMBDA, L, niter, COST, bfig);
+[x_ista, obj]	= MFISTA(A, AT, x0, y, LAMBDA, L, niter, COST, bfig);
 x_ista = real(ifft2(x_ista));
 %% CALCUATE QUANTIFICATION FACTOR 
 nor             = max(x(:));
