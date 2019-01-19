@@ -19,7 +19,7 @@ y = sample(M,x);
 % each parallel sub matrix is moved to third dimension
 % capital-frequency,lowercase-time
 scales = 4;
-shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),scales); % 对同一个参数shearletSystem是固定的，所以公用一个system
+shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),scales); % 对同一个参数shearletSystem
 G = shearletSystem.dualFrameWeights; % n×n
 H = shearletSystem.shearlets; % n×n×I, don't forget conj in dec
 I = shearletSystem.nShearlets;
@@ -28,17 +28,20 @@ H_r = zeros(size(H));
 for i=1:I 
     H_r(:,:,i) = H(:,:,i)./G;
 end
-L = 10;
+% L is the Lipschitz constant
+L = max(H_r(:));
+L = 2*L^2;
+L = 4;
 
-iteration = 10;
-lambda = 8e4;
-A = @(d) sample(M,ShearletHr(d,shearletSystem));
+iteration = 100;
+lambda = 4000;
+A = @(d) sample(M,ShearletHr(ifft2withShift(d),shearletSystem));
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换
 AT = @(d) fft2withShift(ShearletHrT(sampleH(M,d),H_r)); 
-x_ista = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT);
-mse_x_ista      = immse(x_ista./nor, x./nor);
-psnr_x_ista = psnr(x/nor,x_ista/nor);
-ssim_x_ista = ssim(x/nor,x_ista/nor);
+x_recover = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT);
+psnr_x = psnr(x/nor,x_recover/nor);
+ssim_x = ssim(x/nor,x_recover/nor);
+sprintf("the psnr is %f",psnr_x)
 
 figure(1); 
 colormap gray;
