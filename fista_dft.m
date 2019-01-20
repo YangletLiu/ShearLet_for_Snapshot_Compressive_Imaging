@@ -47,7 +47,7 @@ ssim_x_ista     = ssim(x_ista./nor, x./nor);
 %% DISPLAY
 figure(1); 
 colormap gray;
-suptitle('ISTA Method on DFT');
+suptitle('FISTA Method on DFT');
 for i=1:8
     subplot(121);   imagesc(x(:,:,i));	axis image off;     title('orig');
     subplot(122);   imagesc(x_ista(:,:,i));  	axis image off;     title({'recon_{ISTA}', ['MSE : ' num2str(mse_x_ista, '%.4e')], ['PSNR : ' num2str(psnr_x_ista, '%.4f')], ['SSIM : ' num2str(ssim_x_ista, '%.4f')]});

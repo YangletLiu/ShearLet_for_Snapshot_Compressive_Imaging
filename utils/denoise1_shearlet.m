@@ -2,40 +2,40 @@ iteration = 2;
 nor = max(x(:));
 shearletSystem = SLgetShearletSystem2D(0,256,256,4);
 
-l=0.004;
-r=0.014;
-step=0.001;
-times = 1;
-result = zeros(size(l:step:r));
-for stopFactor = l:step:r % 迭代到什么精细程度
-    lambda = (stopFactor)^(1/(iteration-1));
-    imgDenoised = zeros(size(x));
-    for k=1:8
-        coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(x_ista(:,:,k),shearletSystem),shearletSystem);
-        delta = max(abs(coeffsNormalized(:)));
-        for i=1:iteration
-            res = x_ista(:,:,k)-imgDenoised(:,:,k);
-            coeffs = SLsheardec2D(imgDenoised(:,:,k)+res,shearletSystem);
-            coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);
-            imgDenoised(:,:,k) = SLshearrec2D(coeffs,shearletSystem);
-            delta=delta*lambda; 
-            
-%             figure(2);
-%             colormap(gray);
-%             imagesc(imgDenoised(:,:,k));title(['iteration : ' num2str(i, '%d'),'/',num2str(iteration,'%d')]);
-%             drawnow();
-        end
-    end
-    disp(stopFactor);
-    result(times) = psnr(x/nor,imgDenoised/nor);
-    times = times + 1;
-end
+% l=0.004;
+% r=0.014;
+% step=0.001;
+% times = 1;
+% result = zeros(size(l:step:r));
+% for stopFactor = l:step:r % 迭代到什么精细程度
+%     lambda = (stopFactor)^(1/(iteration-1));
+%     imgDenoised = zeros(size(x));
+%     for k=1:8
+%         coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(x_ista(:,:,k),shearletSystem),shearletSystem);
+%         delta = max(abs(coeffsNormalized(:)));
+%         for i=1:iteration
+%             res = x_ista(:,:,k)-imgDenoised(:,:,k);
+%             coeffs = SLsheardec2D(imgDenoised(:,:,k)+res,shearletSystem);
+%             coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);
+%             imgDenoised(:,:,k) = SLshearrec2D(coeffs,shearletSystem);
+%             delta=delta*lambda; 
+%             
+% %             figure(2);
+% %             colormap(gray);
+% %             imagesc(imgDenoised(:,:,k));title(['iteration : ' num2str(i, '%d'),'/',num2str(iteration,'%d')]);
+% %             drawnow();
+%         end
+%     end
+%     disp(stopFactor);
+%     result(times) = psnr(x/nor,imgDenoised/nor);
+%     times = times + 1;
+% end
+% 
+% figure(4)
+% plot(result)
+%[val,pos] = max(result);
 
-figure(4)
-plot(result)
-
-[val,pos] = max(result);
-stopFactor = (pos-1)*step+l; %0.009
+stopFactor = 0.009;%(pos-1)*step+l; %0.009
 lambda = (stopFactor)^(1/(iteration-1));
 imgDenoised = zeros(size(x));
 for k=1:8
@@ -54,7 +54,7 @@ for k=1:8
         drawnow();
     end
 end
-psnr_img = val;
+psnr_img = psnr(x/nor,imgDenoised/nor);
 ssim_img = ssim(x/nor,imgDenoised/nor);
 
 for i=1:8

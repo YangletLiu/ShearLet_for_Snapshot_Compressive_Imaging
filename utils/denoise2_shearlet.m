@@ -23,28 +23,29 @@ end
 
 function Xrec = denoise2(Xnoisy,nor,orig)
     thresholdingFactor = [0 2.5 2.5 2.5 3.8];
-    l=5;
-    r=15;
-    step=1;
-    sigmas = l:step:r;
-    result = zeros(size(sigmas));
     shearletSystem = SLgetShearletSystem2D(0,256,256,4);
-    for i_sigma = 1:length(sigmas)
-        sigma = sigmas(i_sigma);
-        coeffs = SLsheardec2D(Xnoisy,shearletSystem);
-        for j = 1:shearletSystem.nShearlets
-            idx = shearletSystem.shearletIdxs(j,:);
-            coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j)) >= thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
-        end
-        Xrec = SLshearrec2D(coeffs,shearletSystem);
-        result(i_sigma) = psnr(Xrec./nor,orig./nor);
-    end
+%     l=5;
+%     r=15;
+%     step=1;
+%     sigmas = l:step:r;
+%     result = zeros(size(sigmas));
+%     for i_sigma = 1:length(sigmas)
+%         sigma = sigmas(i_sigma);
+%         coeffs = SLsheardec2D(Xnoisy,shearletSystem);
+%         for j = 1:shearletSystem.nShearlets
+%             idx = shearletSystem.shearletIdxs(j,:);
+%             coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j)) >= thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
+%         end
+%         Xrec = SLshearrec2D(coeffs,shearletSystem);
+%         result(i_sigma) = psnr(Xrec./nor,orig./nor);
+%     end
+%     
+% %     figure(4)
+% %     plot(result);
+%     
+%     [~,pos] = max(result);
     
-%     figure(4)
-%     plot(result);
-    
-    [~,pos] = max(result);
-    sigma = sigmas((pos-1)*step+l);
+    sigma = 15;% sigmas((pos-1)*step+l); %15
     coeffs = SLsheardec2D(Xnoisy,shearletSystem);
     for j = 1:shearletSystem.nShearlets
         idx = shearletSystem.shearletIdxs(j,:);

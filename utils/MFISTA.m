@@ -46,6 +46,9 @@ for i = 1:iteration
         drawnow();
     end
     
+    %X = fft2(denoise1(ifft2(X)));
+    X = fft2(denoise2(ifft2(X)));
+    
     % denoise
     % X = fft2(TV_denoising(ifft2(X),0.1,100));
     
@@ -63,4 +66,39 @@ for i = 1:iteration
     
 end
 
+end
+
+function Xrec = denoise1(Xnoisy)
+    shearletSystem = SLgetShearletSystem2D(0,256,256,4);
+    stopFactor = 0.009;
+    iteration = 3;
+    lambda = (stopFactor)^(1/(iteration-1));
+    imgDenoised = zeros(size(Xnoisy));
+    for k=1:8
+        coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(Xnoisy(:,:,k),shearletSystem),shearletSystem);
+        delta = max(abs(coeffsNormalized(:)));
+        for i=1:iteration
+            res = Xnoisy(:,:,k)-imgDenoised(:,:,k);
+            coeffs = SLsheardec2D(imgDenoised(:,:,k)+res,shearletSystem);
+            coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);
+            imgDenoised(:,:,k) = SLshearrec2D(coeffs,shearletSystem);
+            delta=delta*lambda;
+        end
+    end
+    Xrec = imgDenoised;
+end
+
+function Xrec = denoise2(Xnoisy)
+    Xrec = zeros(size(Xnoisy));
+    for i=1:8
+        thresholdingFactor = [0 2.5 2.5 2.5 3.8];
+        shearletSystem = SLgetShearletSystem2D(0,256,256,4);
+        sigma = 1;
+        coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
+        for j = 1:shearletSystem.nShearlets
+            idx = shearletSystem.shearletIdxs(j,:);
+            coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j)) >= thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
+        end
+        Xrec(:,:,i) = SLshearrec2D(coeffs,shearletSystem);
+    end
 end

@@ -44,8 +44,8 @@ function use_filter(x,x_ista)
     subSample3 = x_ista*2 - mean3Sample;
     subSample7 = x_ista*2 - mean7Sample;
     subSampleG = x_ista*2 - gaussianSample;
-    addSampleP = x_ista + prewittSample;
-    addSampleS = x_ista + sobelSample;
+    addSampleP = x_ista + 2*prewittSample;
+    addSampleS = x_ista + 2*sobelSample;
     psnr_x_ista = psnr(x_ista./nor,x./nor);
     psnr_x_P = psnr(addSampleP./nor, x./nor);
     psnr_x_S = psnr(addSampleS./nor, x./nor);
