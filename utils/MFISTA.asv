@@ -49,13 +49,13 @@ for i = 1:iteration
     % denoise
     x = ifft2(X);
     x = denoise2(x);
-    x = TV_denoising(x,0.5,5);
+    x = TV_denoising(x,1,5);
     X = fft2(x);
     
     %X = fft2(denoise1(ifft2(X)));
     %X = fft2(denoise2(ifft2(X)));
     %X = fft2(denoise3(ifft2(X)));
-    %X = fft2(TV_denoising(ifft2(X),1,5));
+    %X = fft2(denoise2(ifft2(X)));
     
     % filter
 %     if iteration - i < 5

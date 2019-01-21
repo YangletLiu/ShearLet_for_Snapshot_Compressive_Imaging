@@ -18,7 +18,7 @@ y = sample(M,x);
 
 % each parallel sub matrix is moved to third dimension
 % capital-frequency,lowercase-time
-scales = 4;
+scales = 2;
 shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),scales); % 对同一个参数shearletSystem是固定的，所以公用一个system
 G = shearletSystem.dualFrameWeights; % n×n
 H = shearletSystem.shearlets; % n×n×I, don't forget conj in dec
@@ -29,8 +29,7 @@ for i=1:I
     H_r(:,:,i) = H(:,:,i)./G;
 end
 L = 10;
-
-iteration = 10;
+iteration = 20;
 lambda = 8e4;
 A = @(d) sample(M,ShearletHr(d,shearletSystem));
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换

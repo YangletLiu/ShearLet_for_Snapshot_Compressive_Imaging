@@ -7,24 +7,39 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
     % lambda is a parameter to balance sparseness and approximation
     % A and AT are functions perform linear transforms which are hard to be taken directly in the matrix format
     
+    t1 = 1;
     s = zeros(size(y,1),size(y,2),8*I);
 %     x = repmat(y,1,1,8);
 %     for i=1:8
 %        s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem); %换3D-shear？
 %     end
     S = fft2withShift(s);
+    S0 = S;
     cost = zeros(iteration);
     
     % 迭代求解s并重构x进行观测
     for k=1:iteration
-        U = S-1/L*AT(A(s)-y);
-        S = threshold(U,lambda/L);
-        s = ifft2withShift(S);
+        S1 = threshold(S-1/L*AT(A(s)-y),lambda/L);
         
+        t2 = (1+sqrt(1+4*t1^2))/2;
+        S = S1 + (t1-1)/t2*(S1-S0);
+        S0 = S1;
+        %t1=t2;
+        t1=1;
+        
+        s = ifft2withShift(S);
         for i=1:8
             x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
         end
         x = real(x);
+        x = denoise2(x,shearletSystem);
+        %x = TV_denoising(x,1,5);
+        for i=1:8
+            s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
+        end
+
+        
+        
     
         L1 = @(x) norm(x, 1);
         L2 = @(x) power(norm(x, 'fro'), 2);
@@ -38,5 +53,19 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
         xlabel('# of iteration'); ylabel('Objective'); 
         xlim([1, iteration]); grid on; grid minor;
         drawnow();
+    end
+end
+
+function Xrec = denoise2(Xnoisy,shearletSystem)
+    Xrec = zeros(size(Xnoisy));
+    thresholdingFactor = [0 2.5 2.5 2.5 3.8];
+    for i=1:8
+        sigma = 1;
+        coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
+        for j = 1:shearletSystem.nShearlets
+            idx = shearletSystem.shearletIdxs(j,:);
+            coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j)) >= thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
+        end
+        Xrec(:,:,i) = SLshearrec2D(coeffs,shearletSystem);
     end
 end
