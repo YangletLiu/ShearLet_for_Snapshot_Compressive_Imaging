@@ -49,7 +49,7 @@ for i = 1:iteration
     % denoise
     x = ifft2(X);
     x = denoise2(x);
-    x = TV_denoising(x,0.5,5);
+    % x = TV_denoising(x,0.5,5);
     X = fft2(x);
     
     %X = fft2(denoise1(ifft2(X)));

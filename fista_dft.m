@@ -53,3 +53,14 @@ for i=1:8
     subplot(122);   imagesc(x_ista(:,:,i));  	axis image off;     title({'recon_{ISTA}', ['MSE : ' num2str(mse_x_ista, '%.4e')], ['PSNR : ' num2str(psnr_x_ista, '%.4f')], ['SSIM : ' num2str(ssim_x_ista, '%.4f')]});
     pause(1);
 end
+
+load("GAP_TV.mat")
+psnr_gaptv = psnr(x/nor,vgaptv);
+ssim_gaptv = ssim(x/nor,vgaptv);
+figure(2)
+colormap('gray')
+suptitle('GAP_TV Method');
+for i=1:8
+    imagesc(vgaptv(:,:,i)); title({['PSNR : ' num2str(psnr_gaptv, '%.4f')], ['SSIM : ' num2str(ssim_gaptv, '%.4f')]});
+    pause(1)
+end
