@@ -1,5 +1,5 @@
 clear
-clc
+
 addpath(genpath(pwd))
 load("kobe32_cacti.mat") %orig,mean,mask
 %% FISTA shearlet---------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ M = mask(:,:,1);
 x = orig(:,:,1); % n×n  no need to transform to N×1
 nor = max(x(:));
 y = M.*x; 
-scales = 4;
+scales = 3;
 shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),scales);
 s_real = SLsheardec2D(x,shearletSystem); % n×n×I, s is the coefficients in the shearlet domain
 G = shearletSystem.dualFrameWeights; % n×n
@@ -25,10 +25,10 @@ end
 L = 4;
 iteration = 50;
 lambda = 4000;
-A = @(d) M.*SLshearrec2D(ifft2withShift(d),shearletSystem);
+A = @(d) M.*SLshearrec2D(d,shearletSystem);
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换
 AT = @(d) fft2withShift(verifyHrT(M.*d,H_r)); 
-x_recover = verify_shearlet(iteration,I,M,y,L,lambda,shearletSystem,A,AT);
+x_recover = verify_shearlet(iteration,M,y,L,lambda,shearletSystem,A,AT);
 psnr_x = psnr(x/nor,x_recover/nor);
 ssim_x = ssim(x/nor,x_recover/nor);
 sprintf("the psnr is %f",psnr_x)

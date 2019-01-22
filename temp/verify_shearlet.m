@@ -1,4 +1,4 @@
-function x = verify_shearlet(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
+function x = verify_shearlet(iteration,M,y,L,lambda,shearletSystem,A,AT)
 
     % the discarded f is the 2D-DFT block circulant matrix, we know that f^-1 = f^H = f', which means f^H can also be represented as ifft2 
 
@@ -32,15 +32,8 @@ function x = verify_shearlet(iteration,I,M,y,L,lambda,shearletSystem,A,AT)
 
     for k=1:iteration
 
-        D = S-1/L*AT(A(S)-y);
-
-        for i = 1:I
-
-            U = D(:,:,i);
-
-            S(:,:,i) = threshold(U,lambda/L);
-
-        end
+        U = S-1/L*AT(A(s)-y);
+        S = threshold(U,lambda/L);
 
         s = ifft2withShift(S);
 

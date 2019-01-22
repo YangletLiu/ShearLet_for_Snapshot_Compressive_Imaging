@@ -8,18 +8,20 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
     % A and AT are functions perform linear transforms which are hard to be taken directly in the matrix format
     
     t1 = 1;
-    s = zeros(size(y,1),size(y,2),8*I);
-%     x = repmat(y,1,1,8);
-%     for i=1:8
-%        s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem); %换3D-shear？
-%     end
+%     s = zeros(size(y,1),size(y,2),8*I);
+%     x = zeros(size(y,1),size(y,2),8);
+    x = repmat(y,1,1,8);
+    for i=1:8
+       s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem); %换3D-shear？
+    end
     S = fft2withShift(s);
     S0 = S;
     cost = zeros(iteration);
     
     % 迭代求解s并重构x进行观测
     for k=1:iteration
-        S1 = threshold(S-1/L*AT(A(s)-y),lambda/L);
+        U = S-1/L*AT(A(s)-y);
+        S1 = threshold(U,lambda/L);
         
         t2 = (1+sqrt(1+4*t1^2))/2;
         S = S1 + (t1-1)/t2*(S1-S0);
@@ -32,11 +34,11 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
             x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
         end
         x = real(x);
-        x = denoise2(x,shearletSystem);
-        %x = TV_denoising(x,1,5);
-        for i=1:8
-            s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
-        end
+%         x = denoise2(x,shearletSystem);
+%         %x = TV_denoising(x,1,5);
+%         for i=1:8
+%             s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
+%         end
 
         
         
