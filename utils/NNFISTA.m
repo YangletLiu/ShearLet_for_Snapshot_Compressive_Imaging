@@ -20,7 +20,7 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
     
     % 迭代求解s并重构x进行观测
     for k=1:iteration
-        U = S-1/L*AT(A(s)-y);
+        U = fft2withShift(s)-1/L*AT(A(s)-y);
         S1 = threshold(U,lambda/L);
         
         t2 = (1+sqrt(1+4*t1^2))/2;
@@ -34,11 +34,15 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
             x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
         end
         x = real(x);
-%         x = denoise2(x,shearletSystem);
-%         %x = TV_denoising(x,1,5);
-%         for i=1:8
-%             s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
-%         end
+        
+        if k>200
+            x = denoise2(x,shearletSystem);
+            %x = TV_denoising(x,1,5);
+            for i=1:8
+                s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
+            end
+        end
+
 
         
         

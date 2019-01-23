@@ -18,11 +18,11 @@ for i=1:8
     subplot(1,3,3);
     imagesc(imgDenoised(:,:,i)); title({'denoise',['PSNR : ' num2str(psnr_img, '%.4f')], ['SSIM : ' num2str(ssim_img, '%.4f')]});
     colormap(gray);
-    pause(1);
+    %pause(1);
 end
 
 function Xrec = denoise2(Xnoisy,nor,orig)
-    thresholdingFactor = [0 2.5 2.5 2.5 3.8];
+    thresholdingFactor = [0.05 0.05 0.15 0.25 0.8];
     shearletSystem = SLgetShearletSystem2D(0,256,256,4);
 %     l=5;
 %     r=15;
@@ -45,7 +45,7 @@ function Xrec = denoise2(Xnoisy,nor,orig)
 %     
 %     [~,pos] = max(result);
     
-    sigma = 15;% sigmas((pos-1)*step+l); %15
+    sigma = 1;% sigmas((pos-1)*step+l); %15
     coeffs = SLsheardec2D(Xnoisy,shearletSystem);
     for j = 1:shearletSystem.nShearlets
         idx = shearletSystem.shearletIdxs(j,:);

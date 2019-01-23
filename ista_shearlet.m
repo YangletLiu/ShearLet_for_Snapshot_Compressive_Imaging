@@ -29,7 +29,7 @@ for i=1:I
     H_r(:,:,i) = H(:,:,i)./G;
 end
 L = 20;
-iteration = 200;
+iteration = 400;
 lambda = 2e4;
 A = @(d) sample(M,ShearletHr(d,shearletSystem));
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换
