@@ -19,7 +19,7 @@ load("kobe32_cacti.mat") % orig,mean,mask
 x       = orig(:,:,1:8);
 N       = 256;
 M = mask; 
-LAMBDA  = 200;
+LAMBDA  = 170;
 L       = 10;
 niter   = 200; 
 A       = @(x) sample(M,ifft2(x));

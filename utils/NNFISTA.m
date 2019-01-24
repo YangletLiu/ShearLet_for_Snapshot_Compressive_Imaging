@@ -36,8 +36,8 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
         x = real(x);
         
         if k>200
-            x = denoise2(x,shearletSystem);
-            %x = TV_denoising(x,1,5);
+            %x = denoise2(x,shearletSystem);
+            x = TV_denoising(x,0.5,5);
             for i=1:8
                 s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
             end
