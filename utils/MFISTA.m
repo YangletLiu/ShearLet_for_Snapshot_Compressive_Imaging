@@ -45,7 +45,7 @@ for i = 1:iteration
                                             xlim([1, iteration]);   grid on; grid minor;
         drawnow();
     end
-    
+    sprintf("%d",i)
     % denoise
     x = ifft2(X);
     x = denoise2(x);
@@ -95,7 +95,7 @@ end
 
 function Xrec = denoise2(Xnoisy)
     Xrec = zeros(size(Xnoisy));
-    thresholdingFactor = [0 2.5 2.5 2.5 3.8];
+    thresholdingFactor = [0 2 2 2 3.8];
     for i=1:8
         shearletSystem = SLgetShearletSystem2D(0,256,256,4);
         sigma = 1;
