@@ -7,7 +7,10 @@
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
 
 %%
-function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, iteration, COST, bfig)
+function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, iteration, COST, bfig, bGPU)
+if (nargin < 10)
+    bGPU = false;
+end
 
 if (nargin < 9)
     bfig = false;
@@ -22,11 +25,14 @@ if (nargin < 7)
     iteration   = 1e2;
 end
 
-obj     = zeros(iteration, 1);
-
+if bfig
+    obj     = zeros(iteration, 1);
+end
 t1 = 1;
 X = X0;
 
+shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
+sigma = 1;
 for i = 1:iteration
     X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA/L); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
     
@@ -35,7 +41,11 @@ for i = 1:iteration
     X0 = X1;
     t1=t2;
     
-    obj(i)  = COST.function(X);
+    if bGPU && bfig
+        obj(i)  = gather(COST.function(X));   
+    else    
+        obj(i)  = COST.function(X);
+    end
     
     if (bfig)
         img_x = real(ifft2(X));
@@ -47,58 +57,22 @@ for i = 1:iteration
     end
     sprintf("%d",i)
     % denoise
+    
     x = ifft2(X);
-    x = denoise2(x);
-    % x = TV_denoising(x,0.5,5);
+    x = denoise2(x,sigma,shearletSystem,bGPU);
     X = fft2(x);
-    
-    %X = fft2(denoise1(ifft2(X)));
-    %X = fft2(denoise2(ifft2(X)));
-    %X = fft2(denoise3(ifft2(X)));
-    %X = fft2(TV_denoising(ifft2(X),1,5));
-    
-    % filter
-%     if iteration - i < 5
-%         x =ifft2(X);
-%         sobelSample = zeros(size(x));
-%         for j = 1:8
-%             sobelSample(:,:,j) = filter2(fspecial('sobel'),x(:,:,j))/(max(x(:))-min(x(:)));
-%         end  
-%         x = x + sobelSample;
-%         X = fft2(x);
-%     end
-    
-    
+  
 end
 
 end
 
-function Xrec = denoise1(Xnoisy)
-    shearletSystem = SLgetShearletSystem2D(0,256,256,4);
-    stopFactor = 0.009;
-    iteration = 3;
-    lambda = (stopFactor)^(1/(iteration-1));
-    imgDenoised = zeros(size(Xnoisy));
-    for k=1:8
-        coeffsNormalized = SLnormalizeCoefficients2D(SLsheardec2D(Xnoisy(:,:,k),shearletSystem),shearletSystem);
-        delta = max(abs(coeffsNormalized(:)));
-        for i=1:iteration
-            res = Xnoisy(:,:,k)-imgDenoised(:,:,k);
-            coeffs = SLsheardec2D(imgDenoised(:,:,k)+res,shearletSystem);
-            coeffs = coeffs.*(abs(SLnormalizeCoefficients2D(coeffs,shearletSystem))>delta);
-            imgDenoised(:,:,k) = SLshearrec2D(coeffs,shearletSystem);
-            delta=delta*lambda;
-        end
-    end
-    Xrec = imgDenoised;
-end
-
-function Xrec = denoise2(Xnoisy)
+function Xrec = denoise2(Xnoisy,sigma,shearletSystem,bGPU)
     Xrec = zeros(size(Xnoisy));
-    thresholdingFactor = [0 2 2 2 3.8];
+    if bGPU
+        Xrec = gpuArray(single(Xrec));
+    end
+    thresholdingFactor = [0 1 1 1 3.5];
     for i=1:8
-        shearletSystem = SLgetShearletSystem2D(0,256,256,4);
-        sigma = 1;
         coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
         for j = 1:shearletSystem.nShearlets
             idx = shearletSystem.shearletIdxs(j,:);
@@ -106,30 +80,4 @@ function Xrec = denoise2(Xnoisy)
         end
         Xrec(:,:,i) = SLshearrec2D(coeffs,shearletSystem);
     end
-end
-
-function Xout = denoise3(Xnoisy)
-    Xt = zeros(128,128,128,4);
-    Xt(:,:,1:8,1) = Xnoisy(1:128,1:128,:);
-    Xt(:,:,1:8,2) = Xnoisy(1:128,129:256,:);
-    Xt(:,:,1:8,3) = Xnoisy(129:256,1:128,:);
-    Xt(:,:,1:8,4) = Xnoisy(129:256,129:256,:);
-    Xrec = zeros(128,128,128,4);
-    sigma = 1;
-    thresholdingFactor = [3 3 3 4];
-    scales = 3;
-    shearLevels = [1, 1, 2];
-    for i=1:4
-        [Xfreq, Xrec(:,:,:,i), preparedFilters, dualFrameWeightsCurr, shearletIdxs] = SLprepareSerial3D(0,Xt(:,:,:,i),scales,shearLevels);
-        for j = 1:size(shearletIdxs,1)
-            shearletIdx = shearletIdxs(j,:);
-            [coeffs,shearlet, dualFrameWeightsCurr,RMS] = SLsheardecSerial3D(Xfreq,shearletIdx,preparedFilters,dualFrameWeightsCurr);
-            coeffs = coeffs.*(abs(coeffs) > thresholdingFactor(shearletIdxs(2))*RMS*sigma);
-            Xrec(:,:,:,i) = SLshearrecSerial3D(coeffs,shearlet,Xrec(:,:,:,i));      
-        end
-    end
-    Xout(1:128,1:128,:) = Xrec(:,:,1:8,1);
-    Xout(1:128,129:256,:) = Xrec(:,:,1:8,2);
-    Xout(129:256,1:128,:) = Xrec(:,:,1:8,3);
-    Xout(129:256,129:256,:) = Xrec(:,:,1:8,4);
 end

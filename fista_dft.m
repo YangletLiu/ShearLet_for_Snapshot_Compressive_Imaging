@@ -11,56 +11,66 @@ clear ;
 close all;
 home;
 
-bfig    = false;
-
+bfig = true;
+bGPU = false;
 %% DATA GENERATION
 % for Kobe
 load("kobe32_cacti.mat") % orig,mean,mask
 x       = orig(:,:,1:8);
 N       = 256;
 M = mask; 
-LAMBDA  = 150;
+if bGPU 
+    M = gpuArray(single(M));
+end
+LAMBDA  = 1000;
 L       = 10;
-niter   = 200; 
+niter   = 80; 
 A       = @(x) sample(M,ifft2(x));
-AT      = @(y) fft2(sampleH(M,y));
+AT      = @(y) fft2(sampleH(M,y,bGPU));
 
 %% NEWTON METHOD INITIALIZATION
 y       = sample(M,x);
 x0      = zeros(size(x));
-
+if bGPU 
+    y = gpuArray(single(y));
+    x0 = gpuArray(single(x0));
+end
 L1              = @(x) norm(x, 1);
 L2              = @(x) power(norm(x, 'fro'), 2);
 COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
 COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
 
 %% RUN NEWTON METHOD
-
-[x_ista, obj]	= MFISTA(A, AT, x0, y, LAMBDA, L, niter, COST, bfig);
+tic
+[x_ista, obj]	= MFISTA(A, AT, x0, y, LAMBDA, L, niter, COST, bfig, bGPU);
+time = toc;
 x_ista = real(ifft2(x_ista));
+if bGPU
+    x_ista = gather(x_ista);
+end
 %% CALCUATE QUANTIFICATION FACTOR 
 nor             = max(x(:));
-mse_x_ista      = immse(x_ista./nor, x./nor);
-psnr_x_ista     = psnr(x_ista./nor, x./nor);
-ssim_x_ista     = ssim(x_ista./nor, x./nor);
-
+psnr_x_ista = zeros(8,1);
+ssim_x_ista = zeros(8,1);
 %% DISPLAY
 figure(1); 
 colormap gray;
 suptitle('FISTA Method on DFT');
 for i=1:8
-    subplot(121);   imagesc(x(:,:,i));	axis image off;     title('orig');
-    subplot(122);   imagesc(x_ista(:,:,i));  	axis image off;     title({'recon_{ISTA}', ['MSE : ' num2str(mse_x_ista, '%.4e')], ['PSNR : ' num2str(psnr_x_ista, '%.4f')], ['SSIM : ' num2str(ssim_x_ista, '%.4f')]});
+    subplot(121);   
+    imagesc(x(:,:,i));
+    set(gca,'xtick',[],'ytick',[]);
+    title('orig');
+    
+    psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
+    ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
+    
+    subplot(122);   
+    imagesc(x_ista(:,:,i));  	
+    
+    set(gca,'xtick',[],'ytick',[]); 
+    title({'recon_{ISTA}', ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
     pause(1);
 end
-
-load("GAP_TV.mat")
-psnr_gaptv = psnr(x/nor,vgaptv);
-ssim_gaptv = ssim(x/nor,vgaptv);
-figure(2)
-colormap('gray')
-suptitle('GAP_TV Method');
-for i=1:8
-    imagesc(vgaptv(:,:,i)); title({['PSNR : ' num2str(psnr_gaptv, '%.4f')], ['SSIM : ' num2str(ssim_gaptv, '%.4f')]});
-    pause(1)
-end
+psnr_ista = mean(psnr_x_ista);
+ssim_ista = mean(ssim_x_ista);
