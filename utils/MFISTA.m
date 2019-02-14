@@ -35,7 +35,7 @@ X = X0;
 
 if bShear
     shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
-    sigma = 1;
+    sigma = 0.03;
 end
 
 for i = 1:iteration
@@ -54,13 +54,17 @@ for i = 1:iteration
     
     if (bFig)
         img_x = real(ifft2(X));
-        figure(1); colormap gray;
-        subplot(121); imagesc(img_x(:,:,1));           title([num2str(i) ' / ' num2str(iteration)]);
-        subplot(122); semilogy(obj, '*-');  title(COST.equation);  xlabel('# of iteration');   ylabel('Objective'); 
-                                            xlim([1, iteration]);   grid on; grid minor;
-        drawnow();
+        figure(1); 
+        colormap gray;
+        subplot(121); 
+        imagesc(img_x(:,:,1));           
+        title([num2str(i) ' / ' num2str(iteration)]);
+        subplot(122); 
+        semilogy(obj, '*-');  
+        title(COST.equation);  xlabel('# of iteration'); ylabel('Objective'); 
+        xlim([1, iteration]);   grid on; grid minor;
+        % drawnow();
     end
-    sprintf("%d",i)
     
     if bShear
         x = ifft2(X);
@@ -78,7 +82,8 @@ function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU)
         Xrec = gpuArray(single(Xrec));
     end
     thresholdingFactor = [0 1 1 1 3.5];
-    for i=1:8
+    codedFrame = size(Xnoisy,3);
+    for i=1:codedFrame
         coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
         for j = 1:shearletSystem.nShearlets
             idx = shearletSystem.shearletIdxs(j,:);

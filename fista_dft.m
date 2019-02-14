@@ -13,12 +13,14 @@ home;
 
 bFig = true;
 bGPU = false;
-bShear = true;
 %% DATASET
-load("4fan14_cacti.mat") % orig,mean,mask
+load("4fan14_cacti.mat") % meas,mask
 codedNum = 14;
 
-% load("kobe32_cacti.mat") % orig,mean,mask
+load("4hand14_cacti.mat") % meas,mask
+codedNum = 14;
+
+% load("kobe32_cacti.mat") % orig,meas,mask
 % codedNum = 8;
 % clear orig
 %% DATA PROCESS
@@ -34,8 +36,9 @@ M = mask;
 if bGPU 
     M = gpuArray(single(M));
 end
+bShear = true;
 LAMBDA  = 1e5;
-L       = 1e6;
+L       = 2e5;
 niter   = 200; 
 A       = @(x) sample(M,ifft2(x),codedNum);
 AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
