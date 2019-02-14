@@ -1,11 +1,11 @@
 nor = 255;
 psnr_i = zeros(8,1);
 ssim_i = zeros(8,1);
-load("ours_2.mat")
-figure(4)
-colormap('gray')
-imagesc(x(:,:,8));
-set(gca,'xtick',[],'ytick',[]);
+% load("ours_2.mat")
+% figure(4)
+% colormap('gray')
+% imagesc(x(:,:,8));
+% set(gca,'xtick',[],'ytick',[]);
 
 
 %%
@@ -99,7 +99,8 @@ set(gca,'xtick',[],'ytick',[]);
 %     subplot(2,4,i)
 %     psnr_i(i) = psnr_gaptv(i);
 %     ssim_i(i) = ssim_gaptv(i);
-%     imagesc(vgaptv(:,:,i)); title({['PSNR : ' num2str(psnr_i(i), '%.4f')], ['SSIM : ' num2str(ssim_i(i), '%.4f')]}); 
+%     imagesc(vgaptv(:,:,i)); 
+%     title({['PSNR : ' num2str(psnr_i(i), '%.4f')], ['SSIM : ' num2str(ssim_i(i), '%.4f')]}); 
 %     set(gca,'xtick',[],'ytick',[]); 
 % end
 % 
@@ -140,3 +141,24 @@ set(gca,'xtick',[],'ytick',[]);
 %     set(gca,'xtick',[],'ytick',[]); 
 %     %pause(0.5)
 % end
+
+
+load("GAP-TV_fan4.mat")
+load("ours_hand4.mat")
+for i=1:14
+    figure(1)
+    colormap('gray')
+    subplot(2,7,i)
+    imagesc(x_ista(:,:,i)); 
+    set(gca,'xtick',[],'ytick',[]); 
+end
+
+load("ours_fan4.mat")
+load("ours_hand42.mat")
+for i=1:14
+    figure(3)
+    colormap('gray')
+    subplot(2,7,i)
+    imagesc(x_ista(:,:,i)); 
+    set(gca,'xtick',[],'ytick',[]); 
+end

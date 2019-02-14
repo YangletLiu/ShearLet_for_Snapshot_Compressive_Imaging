@@ -35,7 +35,7 @@ X = X0;
 
 if bShear
     shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
-    sigma = 0.03;
+    sigma = 0.5;
 end
 
 for i = 1:iteration

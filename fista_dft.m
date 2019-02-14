@@ -39,7 +39,7 @@ end
 bShear = true;
 LAMBDA  = 1e5;
 L       = 2e5;
-niter   = 200; 
+niter   = 80; 
 A       = @(x) sample(M,ifft2(x),codedNum);
 AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
