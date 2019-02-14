@@ -1,33 +1,40 @@
 nor = 255;
 psnr_i = zeros(8,1);
 ssim_i = zeros(8,1);
-%%
-load("GMM-TP.mat")
-% load("GMM-TP_park4.mat")
-%load("GMM-TP_park3.mat")
-clear psnr;
-clear ssim;
-x_gmm1 = Xpre;
-for i=1:8
-    figure(3)
-    colormap('gray')
-    subplot(2,4,i)
-    psnr_i(i) = psnr(Xtst(:,:,i)/nor,x_gmm1(:,:,i)/nor);
-    ssim_i(i) = ssim(Xtst(:,:,i)/nor,x_gmm1(:,:,i)/nor);
-    imagesc(x_gmm1(:,:,i)); title({['PSNR : ' num2str(psnr_i(i), '%.4f')], ['SSIM : ' num2str(ssim_i(i), '%.4f')]}); 
-    set(gca,'xtick',[],'ytick',[]); 
-end
+load("ours_2.mat")
+figure(4)
+colormap('gray')
+imagesc(x(:,:,8));
+set(gca,'xtick',[],'ytick',[]);
 
-psnr_gmm1 = mean(psnr_i);
-ssim_gmm1 = mean(ssim_i);
-for i=1:8
-    figure(4)
-    colormap('gray')
-    imagesc(x_gmm1(:,:,16)); 
-    %title({['PSNR : ' num2str(psnr_gmm1, '%.4f')], ['SSIM : ' num2str(ssim_gmm1, '%.4f')]});
-    set(gca,'xtick',[],'ytick',[]); 
-    %pause(0.5)
-end
+
+%%
+% load("GMM-TP.mat")
+% % load("GMM-TP_park4.mat")
+% %load("GMM-TP_park3.mat")
+% clear psnr;
+% clear ssim;
+% x_gmm1 = Xpre;
+% for i=1:8
+%     figure(3)
+%     colormap('gray')
+%     subplot(2,4,i)
+%     psnr_i(i) = psnr(Xtst(:,:,i)/nor,x_gmm1(:,:,i)/nor);
+%     ssim_i(i) = ssim(Xtst(:,:,i)/nor,x_gmm1(:,:,i)/nor);
+%     imagesc(x_gmm1(:,:,i)); title({['PSNR : ' num2str(psnr_i(i), '%.4f')], ['SSIM : ' num2str(ssim_i(i), '%.4f')]}); 
+%     set(gca,'xtick',[],'ytick',[]); 
+% end
+% 
+% psnr_gmm1 = mean(psnr_i);
+% ssim_gmm1 = mean(ssim_i);
+% for i=1:8
+%     figure(4)
+%     colormap('gray')
+%     imagesc(x_gmm1(:,:,16)); 
+%     %title({['PSNR : ' num2str(psnr_gmm1, '%.4f')], ['SSIM : ' num2str(ssim_gmm1, '%.4f')]});
+%     set(gca,'xtick',[],'ytick',[]); 
+%     %pause(0.5)
+% end
 
 %%
 % load("MMLE-GMM_park3.mat")

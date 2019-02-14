@@ -5,15 +5,17 @@
 % x^* = argmin_x { 1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1 }
 %
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
+function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, iteration, COST, bFig, bGPU,bShear)
+if (nargin < 10)
+    bShear = false;
+end
 
-%%
-function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, iteration, COST, bfig, bGPU)
 if (nargin < 10)
     bGPU = false;
 end
 
 if (nargin < 9)
-    bfig = false;
+    bFig = false;
 end
 
 if (nargin < 8 || isempty(COST))
@@ -25,14 +27,17 @@ if (nargin < 7)
     iteration   = 1e2;
 end
 
-if bfig
+if bFig
     obj     = zeros(iteration, 1);
 end
 t1 = 1;
 X = X0;
 
-shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
-sigma = 1;
+if bShear
+    shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
+    sigma = 1;
+end
+
 for i = 1:iteration
     X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA/L); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
     
@@ -41,13 +46,13 @@ for i = 1:iteration
     X0 = X1;
     t1=t2;
     
-    if bGPU && bfig
+    if bGPU && bFig
         obj(i)  = gather(COST.function(X));   
     else    
         obj(i)  = COST.function(X);
     end
     
-    if (bfig)
+    if (bFig)
         img_x = real(ifft2(X));
         figure(1); colormap gray;
         subplot(121); imagesc(img_x(:,:,1));           title([num2str(i) ' / ' num2str(iteration)]);
@@ -56,17 +61,18 @@ for i = 1:iteration
         drawnow();
     end
     sprintf("%d",i)
-    % denoise
     
-    x = ifft2(X);
-    x = denoise2(x,sigma,shearletSystem,bGPU);
-    X = fft2(x);
+    if bShear
+        x = ifft2(X);
+        x = shealetShrinkage(x,sigma,shearletSystem,bGPU);
+        X = fft2(x);
+    end
   
 end
 
 end
 
-function Xrec = denoise2(Xnoisy,sigma,shearletSystem,bGPU)
+function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU)
     Xrec = zeros(size(Xnoisy));
     if bGPU
         Xrec = gpuArray(single(Xrec));

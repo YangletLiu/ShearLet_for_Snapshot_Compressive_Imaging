@@ -11,25 +11,41 @@ clear ;
 close all;
 home;
 
-bfig = true;
+bFig = true;
 bGPU = false;
-%% DATA GENERATION
-% for Kobe
-load("kobe32_cacti.mat") % orig,mean,mask
-x       = orig(:,:,1:8);
+bShear = true;
+%% DATASET
+load("4fan14_cacti.mat") % orig,mean,mask
+codedNum = 14;
+
+% load("kobe32_cacti.mat") % orig,mean,mask
+% codedNum = 8;
+% clear orig
+%% DATA PROCESS
+if exist('orig','var')
+    bOrig   = true;
+    x       = orig(:,:,1:codedNum);
+else
+    bOrig   = false;
+    x       = zeros(size(mask));
+end
 N       = 256;
 M = mask; 
 if bGPU 
     M = gpuArray(single(M));
 end
-LAMBDA  = 1000;
-L       = 10;
-niter   = 80; 
-A       = @(x) sample(M,ifft2(x));
-AT      = @(y) fft2(sampleH(M,y,bGPU));
+LAMBDA  = 1e5;
+L       = 1e6;
+niter   = 200; 
+A       = @(x) sample(M,ifft2(x),codedNum);
+AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
-%% NEWTON METHOD INITIALIZATION
-y       = sample(M,x);
+%% INITIALIZATION
+if bOrig
+    y       = sample(M,x,codedNum);
+else
+    y       = meas(:,:,1);
+end
 x0      = zeros(size(x));
 if bGPU 
     y = gpuArray(single(y));
@@ -40,36 +56,39 @@ L2              = @(x) power(norm(x, 'fro'), 2);
 COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
 COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
 
-%% RUN NEWTON METHOD
+%% RUN
 tic
-[x_ista, obj]	= MFISTA(A, AT, x0, y, LAMBDA, L, niter, COST, bfig, bGPU);
+[x_ista, obj]	= MFISTA(A, AT, x0, y, LAMBDA, L, niter, COST, bFig, bGPU,bShear);
 time = toc;
 x_ista = real(ifft2(x_ista));
 if bGPU
     x_ista = gather(x_ista);
 end
-%% CALCUATE QUANTIFICATION FACTOR 
-nor             = max(x(:));
-psnr_x_ista = zeros(8,1);
-ssim_x_ista = zeros(8,1);
+nor         = max(x(:));
+psnr_x_ista = zeros(codedNum,1);
+ssim_x_ista = zeros(codedNum,1);
 %% DISPLAY
 figure(1); 
 colormap gray;
-suptitle('FISTA Method on DFT');
-for i=1:8
-    subplot(121);   
-    imagesc(x(:,:,i));
-    set(gca,'xtick',[],'ytick',[]);
-    title('orig');
-    
-    psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
-    ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
-    
-    subplot(122);   
-    imagesc(x_ista(:,:,i));  	
-    
-    set(gca,'xtick',[],'ytick',[]); 
-    title({'recon_{ISTA}', ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
+for i=1:codedNum
+    if bOrig
+        subplot(121);   
+        imagesc(x(:,:,i));
+        set(gca,'xtick',[],'ytick',[]);
+        title('orig');
+
+        subplot(122);   
+        imagesc(x_ista(:,:,i));  	
+        set(gca,'xtick',[],'ytick',[]); 
+        
+        psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
+        ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
+        title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
+    else 
+        imagesc(x_ista(:,:,i));  	
+        set(gca,'xtick',[],'ytick',[]); 
+        title(['frame : ' num2str(i, '%d')]);
+    end
     pause(1);
 end
 psnr_ista = mean(psnr_x_ista);
