@@ -17,9 +17,6 @@ bGPU = false;
 load("4fan14_cacti.mat") % meas,mask
 codedNum = 14;
 
-load("4hand14_cacti.mat") % meas,mask
-codedNum = 14;
-
 % load("kobe32_cacti.mat") % orig,meas,mask
 % codedNum = 8;
 % clear orig
@@ -37,9 +34,10 @@ if bGPU
     M = gpuArray(single(M));
 end
 bShear = true;
+sigma = 1;
 LAMBDA  = 1e5;
 L       = 2e5;
-niter   = 80; 
+niter   = 200; 
 A       = @(x) sample(M,ifft2(x),codedNum);
 AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
@@ -61,7 +59,7 @@ COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
 
 %% RUN
 tic
-[x_ista, obj]	= MFISTA(A, AT, x0, y, LAMBDA, L, niter, COST, bFig, bGPU,bShear);
+[x_ista, obj]	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear);
 time = toc;
 x_ista = real(ifft2(x_ista));
 if bGPU
@@ -72,9 +70,9 @@ psnr_x_ista = zeros(codedNum,1);
 ssim_x_ista = zeros(codedNum,1);
 %% DISPLAY
 figure(1); 
-colormap gray;
 for i=1:codedNum
     if bOrig
+        colormap gray;
         subplot(121);   
         imagesc(x(:,:,i));
         set(gca,'xtick',[],'ytick',[]);
@@ -88,6 +86,7 @@ for i=1:codedNum
         ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
         title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
     else 
+        colormap gray;
         imagesc(x_ista(:,:,i));  	
         set(gca,'xtick',[],'ytick',[]); 
         title(['frame : ' num2str(i, '%d')]);

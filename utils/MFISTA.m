@@ -5,25 +5,25 @@
 % x^* = argmin_x { 1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1 }
 %
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
-function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, iteration, COST, bFig, bGPU,bShear)
-if (nargin < 10)
+function [X, obj]  = MFISTA(A, AT, X0, b, LAMBDA, L, sigma, iteration, COST, bFig, bGPU,bShear)
+if (nargin < 12)
     bShear = false;
 end
 
-if (nargin < 10)
+if (nargin < 11)
     bGPU = false;
 end
 
-if (nargin < 9)
+if (nargin < 10)
     bFig = false;
 end
 
-if (nargin < 8 || isempty(COST))
+if (nargin < 9 || isempty(COST))
     COST.function	= @(x) (0);
     COST.equation	= [];
 end
 
-if (nargin < 7)
+if (nargin < 8)
     iteration   = 1e2;
 end
 
@@ -35,7 +35,6 @@ X = X0;
 
 if bShear
     shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
-    sigma = 0.5;
 end
 
 for i = 1:iteration
