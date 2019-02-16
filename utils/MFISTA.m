@@ -63,6 +63,8 @@ for i = 1:iteration
         title(COST.equation);  xlabel('# of iteration'); ylabel('Objective'); 
         xlim([1, iteration]);   grid on; grid minor;
         % drawnow();
+    else
+        sprintf(num2str(i))
     end
     
     if bShear

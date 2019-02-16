@@ -1,4 +1,4 @@
-function [Img_recon_sensor X_recon_col] = my_demosaic(Row,Col,CodeFrame,ColT,rotnum,img)
+function [Img_recon_sensor,X_recon_col] = my_demosaic(Row,Col,CodeFrame,ColT,rotnum,img)
   
 % Xin Yuan, Duke ECE
 % xin.yuan@duke.edu

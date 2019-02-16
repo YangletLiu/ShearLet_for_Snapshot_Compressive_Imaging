@@ -144,7 +144,6 @@ ssim_i = zeros(8,1);
 
 
 load("GAP-TV_fan4.mat")
-load("GAP-TV_hand4.mat")
 for i=1:14
     figure(1)
     colormap('gray')
@@ -156,15 +155,6 @@ end
 load("ours_fan4.mat")
 for i=1:14
     figure(2)
-    colormap('gray')
-    subplot(2,7,i)
-    imagesc(x_ista(:,:,i)); 
-    set(gca,'xtick',[],'ytick',[]); 
-end
-
-load("ours_fan4.mat")
-for i=1:14
-    figure(3)
     colormap('gray')
     subplot(2,7,i)
     imagesc(x_ista(:,:,i)); 
