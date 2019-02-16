@@ -1,7 +1,7 @@
 clear
 clc
 
-fname = '3Balls';
+fname = 'Fruits';
 load(fname);
 Row = 512;
 Col = 512;
@@ -9,12 +9,12 @@ rotnum = 2;
 y = Y(:,:,5);
 codedNum = 22;  % How many frames collapsed to 1 measurement
 
-bFig = true;
+bFig = false;
 bShear = true;
-sigma = 1;
-LAMBDA  = 120;
+sigma = 0.03;
+LAMBDA  = 40;
 L       = 10;
-niter   = 50; 
+niter   = 40; 
 
 x0      = zeros(Row/2, Col/2,codedNum);
 L1              = @(x) norm(x, 1);
@@ -74,4 +74,4 @@ for rr=1:4
     x_ista(:,:,(codedNum:-1:1),rr) = theta;
 end
 
-my_demosaic(Row,Col,1,codedNum,rotnum,x_ista);
+[Img_recon_sensor X_recon_col] = my_demosaic(Row,Col,1,codedNum,rotnum,x_ista);

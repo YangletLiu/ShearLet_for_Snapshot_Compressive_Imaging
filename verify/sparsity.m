@@ -1,10 +1,11 @@
-function [xRec1,xRec2] = sparsity(x,epsilon,bFig)
-    if nargin<3
-        bFig = false;
-    end
+function [xRec,PSNR,SSIM] = sparsity(x,epsilon)
     %% shearlet
-    shearletSystem = SLgetShearletSystem2D(0,512,512,4);
-    coeffs1 = SLsheardec2D(x,shearletSystem);
+    shearletSystem = SLgetShearletSystem2D(0,256,256,4);
+    coeffs1 = zeros(256,256,49,8);
+    xRec = zeros(size(x));
+    for i=1:8
+        coeffs1(:,:,:,i) = SLsheardec2D(x(:,:,i),shearletSystem);
+    end
 
     coeffsVec1 = abs(coeffs1(:));
     sortedCoeffs1 = sort(coeffsVec1,'descend');
@@ -12,28 +13,17 @@ function [xRec1,xRec2] = sparsity(x,epsilon,bFig)
     delta1 = sortedCoeffs1(idx1);
 
     coeffs1 = coeffs1.*(abs(coeffs1)>delta1);
-    xRec1 = SLshearrec2D(coeffs1,shearletSystem);
-    if bFig
-        figure(1)
-        colormap('gray')
-        imagesc(xRec1)
-        set(gca,'xtick',[],'ytick',[]); 
+    PSNR_i = zeros(8,1);
+    SSIM_i = zeros(8,1);
+    for i = 1:8
+        xRec(:,:,i) = SLshearrec2D(coeffs1(:,:,:,i),shearletSystem);
+%         PSNR_i(i) = psnr(x(:,:,i)/255,xRec(:,:,i)/255);
+%         SSIM_i(i) = ssim(x(:,:,i)/255,xRec(:,:,i)/255);
+        PSNR_i(i) = psnr(x(:,:,i),xRec(:,:,i));
+        SSIM_i(i) = ssim(x(:,:,i),xRec(:,:,i));
     end
-
-    %% frequency
-    coeffs2 = fft2(x);
-
-    coeffsVec2 = abs(coeffs2(:));
-    sortedCoeffs2 = sort(coeffsVec2,'descend');
-    idx2 = floor(epsilon*size(sortedCoeffs2,1));
-    delta2 = sortedCoeffs2(idx2);
-
-    coeffs2 = coeffs2.*(abs(coeffs2)>delta2);
-    xRec2 = ifft2(coeffs2);
-    if bFig
-        figure(2)
-        colormap('gray')
-        imagesc(xRec2)
-        set(gca,'xtick',[],'ytick',[]); 
-    end
+    
+    
+    PSNR = mean(PSNR_i);
+    SSIM = mean(SSIM_i);
 end
