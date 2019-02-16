@@ -67,12 +67,14 @@ for i = 1:iteration
         sprintf(num2str(i))
     end
     
+    
+    x = ifft2(X);
+    x = projection(x);
     if bShear
-        x = ifft2(X);
         x = shealetShrinkage(x,sigma,shearletSystem,bGPU);
-        X = fft2(x);
     end
-  
+    %x = TV_denoising(x/255,0.05,5)*255;
+    X = fft2(x);
 end
 
 end

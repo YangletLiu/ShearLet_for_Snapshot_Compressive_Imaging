@@ -11,19 +11,26 @@ clear ;
 close all;
 home;
 
-bFig = true;
+bFig = false;
 bGPU = false;
 %% DATASET
-load("4fan14_cacti.mat") % meas,mask
-codedNum = 14;
+% load("4fan14_cacti.mat") % meas,mask
+% codedNum = 14;
 
-% load("kobe32_cacti.mat") % orig,meas,mask
-% codedNum = 8;
+load("traffic240_cacti.mat") % orig,meas,mask
+codedNum = 8;
+k=1;
+
+load("kobe32_cacti.mat") % orig,meas,mask
+codedNum = 8;
 % clear orig
 %% DATA PROCESS
 if exist('orig','var')
     bOrig   = true;
-    x       = orig(:,:,1:codedNum);
+    x       = orig(:,:,k*1:k*codedNum);
+    if max(x(:))<=1
+        x       = x * 255;
+    end
 else
     bOrig   = false;
     x       = zeros(size(mask));
@@ -35,8 +42,8 @@ if bGPU
 end
 bShear = true;
 sigma = 1;
-LAMBDA  = 1e5;
-L       = 2e5;
+LAMBDA  = 120;
+L       = 10;
 niter   = 200; 
 A       = @(x) sample(M,ifft2(x),codedNum);
 AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
