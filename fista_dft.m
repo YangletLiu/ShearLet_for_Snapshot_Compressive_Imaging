@@ -20,19 +20,19 @@ test_data = 1;
 
 load("traffic240_cacti.mat") % orig,meas,mask
 codedNum = 8;
-test_data = 7:30;
+test_data = 30;
 
-load("kobe32_cacti.mat") % orig,meas,mask
-codedNum = 8;
-test_data = 1;
-
-load("3park8_cacti.mat") % orig,meas,mask
-codedNum = 8;
-test_data = 1;
-
-load("4park8_cacti.mat") % orig,meas,mask
-codedNum = 8;
-test_data = 1;
+% load("kobe32_cacti.mat") % orig,meas,mask
+% codedNum = 8;
+% test_data = 1:4;
+% 
+% load("3park8_cacti.mat") % orig,meas,mask
+% codedNum = 8;
+% test_data = 1;
+% 
+% load("4park8_cacti.mat") % orig,meas,mask
+% codedNum = 8;
+% test_data = 1;
 % clear orig
 
 for k = test_data
@@ -56,7 +56,7 @@ for k = test_data
     sigma = 1;
     LAMBDA  = 120;
     L       = 10;
-    niter   = 200; 
+    niter   = 350; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
