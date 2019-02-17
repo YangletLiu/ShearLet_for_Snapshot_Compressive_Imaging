@@ -16,9 +16,9 @@ function [xRec,PSNR,SSIM] = sparsity(x,epsilon,type)
         case 2 
             % shearlet
             shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),4);
-            coeffs = zeros(size(x,1),size(x,2),shearletSystem.nShearlets,8);
+            coeffs = zeros(size(x,1),size(x,2),shearletSystem.nShearlets,size(x,3));
             xRec = zeros(size(x));
-            for i=1:8
+            for i=1:size(x,3)
                 coeffs(:,:,:,i) = SLsheardec2D(x(:,:,i),shearletSystem);
             end
             coeffsVec = abs(coeffs(:));
@@ -26,12 +26,43 @@ function [xRec,PSNR,SSIM] = sparsity(x,epsilon,type)
             idx = floor(epsilon*size(sortedCoeffs,1));
             delta = sortedCoeffs(idx);
             coeffs = coeffs.*(abs(coeffs)>delta);
-            for i =1:8
+            for i =1:size(x,3)
                 xRec(:,:,i) = SLshearrec2D(coeffs(:,:,:,i),shearletSystem);
             end
         case 3
-            % wavelet
-            [coeffs,~]=wavedec2(x,2,'db1');
+            % curvelet
+            xRec = zeros(size(x));
+            for i = 1:8
+                % Take curvelet transform
+                C = fdct_wrapping(x(:,:,i),1,2);
+                
+                for s = 2:length(C)
+                    for w = 1:length(C{s})
+                        arr = C{s}{w};
+                        if ~exist('coeffs','var')
+                            coeffs = arr(:);
+                        else
+                            coeffs = [coeffs;arr(:)];
+                        end
+                    end
+                end
+                
+                coeffsVec = abs(coeffs(:));
+                sortedCoeffs = sort(coeffsVec,'descend');
+                idx = floor(epsilon*size(sortedCoeffs,1));
+                delta = sortedCoeffs(idx);
+                
+                % Apply thresholding
+                Ct = C;
+                for s = 2:length(C)
+                  for w = 1:length(C{s})
+                    Ct{s}{w} = C{s}{w}.* (abs(C{s}{w}) > delta);
+                  end
+                end
+
+                % Take inverse curvelet transform 
+                xRec(:,:,i) = real(ifdct_wrapping(Ct,1,size(x,1),size(x,2)));
+            end
     end
     
     PSNR_i = zeros(8,1);
