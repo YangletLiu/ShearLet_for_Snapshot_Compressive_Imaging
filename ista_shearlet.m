@@ -2,6 +2,8 @@ clear
 clc
 addpath(genpath(pwd))
 load("kobe32_cacti.mat") %orig,mean,mask
+bDe = false;
+bFig = false;
 
 %% FISTA shearlet---------------------------------------------------------------------------------------
 maskFrames = size(mask,3);
@@ -10,7 +12,7 @@ N = height*width;
 M = mask;
 x = orig(:,:,1:8); % n×n  no need to transform to N×1
 nor = max(x(:));
-y = sample(M,x); 
+y = sample(M,x,8); 
 
 % we don't need to build Psi_r in real other than here for the constant L, 
 % we use math tricks to find another way to represent shearlet transform,
@@ -18,7 +20,7 @@ y = sample(M,x);
 
 % each parallel sub matrix is moved to third dimension
 % capital-frequency,lowercase-time
-scales = 2;
+scales = 1;
 shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),scales); % 对同一个参数shearletSystem是固定的，所以公用一个system
 G = shearletSystem.dualFrameWeights; % n×n
 H = shearletSystem.shearlets; % n×n×I, don't forget conj in dec
@@ -31,10 +33,12 @@ end
 L = 20;
 iteration = 400;
 lambda = 2e4;
-A = @(d) sample(M,ShearletHr(d,shearletSystem));
+A = @(d) sample(M,ShearletHr(d,shearletSystem),8);
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换
-AT = @(d) fft2withShift(ShearletHrT(sampleH(M,d),H_r)); 
-x_ista = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT);
+AT = @(d) fft2withShift(ShearletHrT(sampleH(M,d,8,false),H_r)); 
+tic;
+x_ista = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig);
+time = toc;
 mse_x_ista = immse(x_ista./nor, x./nor);
 psnr_x_ista = psnr(x/nor,x_ista/nor);
 ssim_x_ista = ssim(x/nor,x_ista/nor);

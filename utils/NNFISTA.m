@@ -1,4 +1,4 @@
-function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
+function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig)
     % the discarded f is the 2D-DFT block circulant matrix, we know that f^-1 = f^H = f', which means f^H can also be represented as ifft2 
     % I is the nShearlets of the number of shearlets
     % M is of size n¡Án, a mask matrix
@@ -30,48 +30,45 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT)
         t1=1;
         
         s = ifft2withShift(S);
-        for i=1:8
-            x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
-        end
-        x = real(x);
         
-        if k>200
-            %x = denoise2(x,shearletSystem);
-            x = TV_denoising(x,0.5,5);
+        if bDe
+            for i=1:8
+                x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
+            end
+            x = real(x);
+            x = projection(x);
+            x = TV_denoising(x/255,0.05,3)*255;
             for i=1:8
                 s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
             end
         end
-
-
         
-        
-    
-        L1 = @(x) norm(x, 1);
-        L2 = @(x) power(norm(x, 'fro'), 2);
-        cost(k) = 1/2 * L2(A(s) - y) + lambda * L1(S(:)); 
-        figure(1);
-        colormap(gray);
-        subplot(121);
-        imagesc(x(:,:,1));title([num2str(k) ' / ' num2str(iteration)]);
-        subplot(122);
-        semilogy(cost, '*-'); 
-        xlabel('# of iteration'); ylabel('Objective'); 
-        xlim([1, iteration]); grid on; grid minor;
-        drawnow();
-    end
-end
-
-function Xrec = denoise2(Xnoisy,shearletSystem)
-    Xrec = zeros(size(Xnoisy));
-    thresholdingFactor = [0 2.5 2.5 2.5 3.8];
-    for i=1:8
-        sigma = 1;
-        coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
-        for j = 1:shearletSystem.nShearlets
-            idx = shearletSystem.shearletIdxs(j,:);
-            coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j)) >= thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
+        if bFig
+            if ~bDe
+                for i=1:8
+                    x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
+                end
+                x = real(x);
+            end
+            L1 = @(x) norm(x, 1);
+            L2 = @(x) power(norm(x, 'fro'), 2);
+            cost(k) = 1/2 * L2(A(s) - y) + lambda * L1(S(:)); 
+            figure(1);
+            colormap(gray);
+            subplot(121);
+            imagesc(x(:,:,1));title([num2str(k) ' / ' num2str(iteration)]);
+            subplot(122);
+            semilogy(cost, '*-'); 
+            xlabel('# of iteration'); ylabel('Objective'); 
+            xlim([1, iteration]); grid on; grid minor;
+            drawnow();
+        else
+            disp(k);
         end
-        Xrec(:,:,i) = SLshearrec2D(coeffs,shearletSystem);
     end
+    for i=1:8
+        x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
+    end
+    x = real(x);
+    x = projection(x);
 end

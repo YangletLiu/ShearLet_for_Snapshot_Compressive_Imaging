@@ -34,7 +34,7 @@ t1 = 1;
 X = X0;
 
 if bShear
-    shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
+    shearletSystem = SLgetShearletSystem2D(bGPU,256,256,1);
 end
 
 for i = 1:iteration
@@ -73,10 +73,8 @@ for i = 1:iteration
     if bShear
         x = shealetShrinkage(x,sigma,shearletSystem,bGPU);
     end
-    %x = TV_denoising(x/255,0.05,5)*255;
     X = fft2(x);
 end
-
 end
 
 function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU)
@@ -84,7 +82,7 @@ function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU)
     if bGPU
         Xrec = gpuArray(single(Xrec));
     end
-    thresholdingFactor = [0 1 1 1 3.5];
+    thresholdingFactor = [0 3]; % 1 for lowpass, 2 for scale 1
     codedFrame = size(Xnoisy,3);
     for i=1:codedFrame
         coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
