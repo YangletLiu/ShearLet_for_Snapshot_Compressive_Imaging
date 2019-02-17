@@ -32,27 +32,29 @@ function [xRec,PSNR,SSIM] = sparsity(x,epsilon,type)
         case 3
             % curvelet
             xRec = zeros(size(x));
+            coeffs = cell(1,5,8);
             for i = 1:8
                 % Take curvelet transform
-                C = fdct_wrapping(x(:,:,i),1,2);
-                
+                coeffs(:,:,i) = fdct_wrapping(x(:,:,i),1,2);
+                C = coeffs(:,:,i);
                 for s = 2:length(C)
                     for w = 1:length(C{s})
                         arr = C{s}{w};
-                        if ~exist('coeffs','var')
-                            coeffs = arr(:);
+                        if ~exist('coeffsVec','var')
+                            coeffsVec = arr(:);
                         else
-                            coeffs = [coeffs;arr(:)];
+                            coeffsVec = [coeffsVec;arr(:)];
                         end
                     end
                 end
-                
-                coeffsVec = abs(coeffs(:));
-                sortedCoeffs = sort(coeffsVec,'descend');
-                idx = floor(epsilon*size(sortedCoeffs,1));
-                delta = sortedCoeffs(idx);
-                
+            end
+            coeffsVec = abs(coeffsVec(:));
+            sortedCoeffs = sort(coeffsVec,'descend');
+            idx = floor(epsilon*size(sortedCoeffs,1));
+            delta = sortedCoeffs(idx);
+            for i=1:8     
                 % Apply thresholding
+                C = coeffs(:,:,i);
                 Ct = C;
                 for s = 2:length(C)
                   for w = 1:length(C{s})

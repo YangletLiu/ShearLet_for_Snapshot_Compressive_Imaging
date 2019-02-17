@@ -1,8 +1,8 @@
 epsilon = 0.04;
 ites = 20;
 fname = "kobe32_cacti.mat";
-% fname = "3park8_cacti.mat";
-% fname = "traffic240_cacti";
+fname = "3park8_cacti.mat";
+fname = "traffic240_cacti";
 load(fname)
 
 type_fft = 1;
