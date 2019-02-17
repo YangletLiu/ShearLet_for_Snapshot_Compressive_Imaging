@@ -1,7 +1,7 @@
 epsilon = 0.04;
 ites = 20;
-fname = "kobe32_cacti.mat";
-fname = "3park8_cacti.mat";
+% fname = "kobe32_cacti.mat";
+% fname = "3park8_cacti.mat";
 fname = "traffic240_cacti";
 load(fname)
 
@@ -15,5 +15,5 @@ ssim_s = zeros(ites,1);
 for i = 1:ites
     sprintf("ite%i",i)
     ratio = 0.01*i;
-    [~,psnr_s(i),ssim_s(i)] = sparsity(x,ratio,type_curvelet);
+    [~,psnr_s(i),ssim_s(i)] = sparsity(x,ratio,type_shearlet);
 end

@@ -15,7 +15,7 @@ function [xRec,PSNR,SSIM] = sparsity(x,epsilon,type)
             xRec = real(xRec);
         case 2 
             % shearlet
-            shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),4);
+            shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),2);
             coeffs = zeros(size(x,1),size(x,2),shearletSystem.nShearlets,size(x,3));
             xRec = zeros(size(x));
             for i=1:size(x,3)
