@@ -1,26 +1,44 @@
-function [xRec,PSNR,SSIM] = sparsity(x,epsilon)
-    %% shearlet
-    shearletSystem = SLgetShearletSystem2D(0,256,256,4);
-    coeffs1 = zeros(256,256,49,8);
-    xRec = zeros(size(x));
-    for i=1:8
-        coeffs1(:,:,:,i) = SLsheardec2D(x(:,:,i),shearletSystem);
+function [xRec,PSNR,SSIM] = sparsity(x,epsilon,type)
+    if max(x(:))<=1
+            x  = x * 255;
     end
-
-    coeffsVec1 = abs(coeffs1(:));
-    sortedCoeffs1 = sort(coeffsVec1,'descend');
-    idx1 = floor(epsilon*size(sortedCoeffs1,1));
-    delta1 = sortedCoeffs1(idx1);
-
-    coeffs1 = coeffs1.*(abs(coeffs1)>delta1);
+    switch type
+        case 1
+            % frequency
+            coeffs = fft2(x);
+            coeffsVec = abs(coeffs(:));
+            sortedCoeffs = sort(coeffsVec,'descend');
+            idx = floor(epsilon*size(sortedCoeffs,1));
+            delta = sortedCoeffs(idx);
+            coeffs = coeffs.*(abs(coeffs)>delta);
+            xRec = ifft2(coeffs);
+            xRec = real(xRec);
+        case 2 
+            % shearlet
+            shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),4);
+            coeffs = zeros(size(x,1),size(x,2),shearletSystem.nShearlets,8);
+            xRec = zeros(size(x));
+            for i=1:8
+                coeffs(:,:,:,i) = SLsheardec2D(x(:,:,i),shearletSystem);
+            end
+            coeffsVec = abs(coeffs(:));
+            sortedCoeffs = sort(coeffsVec,'descend');
+            idx = floor(epsilon*size(sortedCoeffs,1));
+            delta = sortedCoeffs(idx);
+            coeffs = coeffs.*(abs(coeffs)>delta);
+            for i =1:8
+                xRec(:,:,i) = SLshearrec2D(coeffs(:,:,:,i),shearletSystem);
+            end
+        case 3
+            % wavelet
+            [coeffs,~]=wavedec2(x,2,'db1');
+    end
+    
     PSNR_i = zeros(8,1);
     SSIM_i = zeros(8,1);
     for i = 1:8
-        xRec(:,:,i) = SLshearrec2D(coeffs1(:,:,:,i),shearletSystem);
-%         PSNR_i(i) = psnr(x(:,:,i)/255,xRec(:,:,i)/255);
-%         SSIM_i(i) = ssim(x(:,:,i)/255,xRec(:,:,i)/255);
-        PSNR_i(i) = psnr(x(:,:,i),xRec(:,:,i));
-        SSIM_i(i) = ssim(x(:,:,i),xRec(:,:,i));
+        PSNR_i(i) = psnr(x(:,:,i)/255,xRec(:,:,i)/255);
+        SSIM_i(i) = ssim(x(:,:,i)/255,xRec(:,:,i)/255);
     end
     
     
