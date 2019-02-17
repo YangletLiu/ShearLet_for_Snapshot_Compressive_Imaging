@@ -22,8 +22,8 @@ load("verify_traffic3.mat")
 y9_ = psnr_s;
 figure(3)
 hold on
-plot(x_,y4_,'-r',x_,y5_,'-k',x_,y6_,'-b',x_,y7_,'--r',x_,y8_,'--k',x_,y9_,'--b',x_,y1_,':r',x_,y2_,':k',x_,y3_,':b','LineWidth',2); %线性，颜色，标记
-legend('Kobe shearlet','Aerial shearlet','Traffic shearlet','Kobe curvelet','Aerial curvelet','Traffic curvelet','Kobe fft','Aerial fft','Traffic fft')
+p = plot(x_,y4_,'-r',x_,y5_,'-k',x_,y6_,'-b',x_,y7_,'--r',x_,y8_,'--k',x_,y9_,'--b',x_,y1_,':r',x_,y2_,':k',x_,y3_,':b','LineWidth',2); %线性，颜色，标记
+legend({'Kobe shearlet','Aerial shearlet','Traffic shearlet','Kobe curvelet','Aerial curvelet','Traffic curvelet','Kobe fft','Aerial fft','Traffic fft'},'NumColumns',3)
 set(gca,'XTick',0:2:20)
 box on
 grid on
