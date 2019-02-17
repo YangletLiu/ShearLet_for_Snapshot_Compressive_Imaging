@@ -1,13 +1,14 @@
 epsilon = 0.04;
 ites = 20;
-% fname = "kobe32_cacti.mat";
+fname = "kobe32_cacti.mat";
 % fname = "3park8_cacti.mat";
-fname = "traffic240_cacti";
+% fname = "traffic240_cacti";
 load(fname)
 
 type_fft = 1;
 type_shearlet = 2;
 type_curvelet = 3;
+type_wavelet = 4;
 
 x = orig(:,:,1:8);
 psnr_s = zeros(ites,1);

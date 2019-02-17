@@ -16,20 +16,22 @@ bGPU = false;
 %% DATASET
 % load("4fan14_cacti.mat") % meas,mask
 % codedNum = 14;
+test_data = 1;
 
 load("traffic240_cacti.mat") % orig,meas,mask
 codedNum = 8;
-test_data=7:20;
+test_data = 7:20;
 
-% load("kobe32_cacti.mat") % orig,meas,mask
-% codedNum = 8;
+load("kobe32_cacti.mat") % orig,meas,mask
+codedNum = 8;
+test_data = 1;
 % clear orig
 
 for k = test_data
 %% DATA PROCESS
     if exist('orig','var')
         bOrig   = true;
-        x       = orig(:,:,k*codedNum+1:k*codedNum+codedNum);
+        x       = orig(:,:,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
         if max(x(:))<=1
             x       = x * 255;
         end
@@ -105,5 +107,5 @@ for k = test_data
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
 
-    save(sprintf("results/traffic/ours_traffic%d.mat",k+1))
+    save(sprintf("results/traffic/ours_traffic%d.mat",k))
 end
