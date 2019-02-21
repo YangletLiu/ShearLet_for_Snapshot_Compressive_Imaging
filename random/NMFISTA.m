@@ -69,7 +69,7 @@ for i = 1:iteration
     
     
     x = ifft2(X);
-    x = projection(x);
+    x = projection(x); %现在采样有了减法，在这里是否还要留
     if bShear
         x = shealetShrinkage(x,sigma,shearletSystem,bGPU);
     end

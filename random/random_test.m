@@ -32,9 +32,12 @@ test_data = 1;
 % clear orig
 
 %% Generate random matrix
+d = 1; % d*2 in fact
 random_order = randperm(65536);
 positive = random_order(1:32768);
+positive = reshape(positive,[],d);
 negtive = random_order(32769:65536);
+negtive = reshape(negtive,[],d);
 
 for k = test_data
 %% DATA PROCESS
@@ -53,17 +56,17 @@ for k = test_data
     if bGPU 
         M = gpuArray(single(M));
     end
-    bShear = true;
+    bShear = false;
     sigma = 1;
     LAMBDA  = 12;
     L       = 10;
     niter   = 200; 
-    A       = @(x) nsample(M,ifft2(x),codedNum,positive,negtive);
-    AT      = @(y) fft2(nsampleH(M,y,codedNum,positive,negtive));
+    A       = @(x) nsample(M,ifft2(x),codedNum,positive,negtive,d);
+    AT      = @(y) fft2(nsampleH(M,y,codedNum,positive,negtive,d));
 
     %% INITIALIZATION
     if bOrig
-        y       = nsample(M,x,codedNum,positive,negtive);
+        y       = nsample(M,x,codedNum,positive,negtive,d);
     else
         y       = meas(:,:,1);
     end
