@@ -31,6 +31,11 @@ test_data = 1;
 % test_data = 1;
 % clear orig
 
+%% Generate random matrix
+random_order = randperm(65536);
+positive = random_order(1:32768);
+negtive = random_order(32769:65536);
+
 for k = test_data
 %% DATA PROCESS
     if exist('orig','var')
@@ -53,12 +58,12 @@ for k = test_data
     LAMBDA  = 12;
     L       = 10;
     niter   = 200; 
-    A       = @(x) sample(M,ifft2(x),codedNum);
-    AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
+    A       = @(x) nsample(M,ifft2(x),codedNum,positive,negtive);
+    AT      = @(y) fft2(nsampleH(M,y,codedNum,positive,negtive));
 
     %% INITIALIZATION
     if bOrig
-        y       = sample(M,x,codedNum);
+        y       = nsample(M,x,codedNum,positive,negtive);
     else
         y       = meas(:,:,1);
     end
@@ -74,7 +79,7 @@ for k = test_data
 
 %% RUN
     tic
-    x_ista	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear);
+    x_ista	= NMFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear);
     time = toc;
     x_ista = real(ifft2(x_ista));
     if bGPU

@@ -7,6 +7,7 @@ Row = 512;
 Col = 512;
 rotnum = 2;
 y = Y(:,:,5);
+%y = Y(:,:,5)*22*256;
 codedNum = 22;  % How many frames collapsed to 1 measurement
 
 bFig = false;

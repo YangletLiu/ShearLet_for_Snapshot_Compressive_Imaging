@@ -5,7 +5,7 @@
 % x^* = argmin_x { 1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1 }
 %
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
-function X  = MFISTA(A, AT, X0, b, LAMBDA, L, sigma, iteration, COST, bFig, bGPU,bShear)
+function X  = NMFISTA(A, AT, X0, b, LAMBDA, L, sigma, iteration, COST, bFig, bGPU,bShear)
 if (nargin < 12)
     bShear = false;
 end
