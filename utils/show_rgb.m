@@ -1,5 +1,5 @@
 load("GAP-TV_fruits.mat")
-load("ours_fruits3.mat")
+load("ours_triball_s.mat")
 figure(1);
  for k=1:codedNum
      subplot(121)

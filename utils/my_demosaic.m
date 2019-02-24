@@ -36,7 +36,7 @@ X_recon_col = Temshow;
 
  figure;
  for k=1:(CodeFrame*ColT)
-     imagesc(Temshow(:,:,:,k)); title(num2str(k)); pause(0.1);
+     imagesc(Temshow(:,:,:,k)); title(num2str(k)); pause(0.3);
  end
 
 end

@@ -5,7 +5,7 @@
 % x^* = argmin_x { 1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1 }
 %
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
-function X  = MFISTA(A, AT, X0, b, LAMBDA, L, sigma, iteration, COST, bFig, bGPU,bShear)
+function X  = MFISTA(A, AT, X0, b, LAMBDA, L, sigma, iteration, COST, bFig, bGPU,bShear,bReal)
 if (nargin < 12)
     bShear = false;
 end
@@ -34,7 +34,11 @@ t1 = 1;
 X = X0;
 
 if bShear
-    shearletSystem = SLgetShearletSystem2D(bGPU,256,256,1);
+    if bReal
+        shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
+    else
+        shearletSystem = SLgetShearletSystem2D(bGPU,256,256,1);
+    end
 end
 
 for i = 1:iteration
@@ -71,18 +75,22 @@ for i = 1:iteration
     x = ifft2(X);
     x = projection(x);
     if bShear
-        x = shealetShrinkage(x,sigma,shearletSystem,bGPU);
+        x = shealetShrinkage(x,sigma,shearletSystem,bGPU,bReal);
     end
     X = fft2(x);
 end
 end
 
-function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU)
+function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU,bReal)
     Xrec = zeros(size(Xnoisy));
     if bGPU
         Xrec = gpuArray(single(Xrec));
     end
-    thresholdingFactor = [0 4]; % 1 for lowpass, 2 for scale 1
+    if bReal
+        thresholdingFactor = [0 1 1 1 3.5];
+    else
+        thresholdingFactor = [0 4]; % 1 for lowpass, 2 for scale 1
+    end
     codedFrame = size(Xnoisy,3);
     for i=1:codedFrame
         coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);

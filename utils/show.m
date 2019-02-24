@@ -1,10 +1,10 @@
 % nor = 255;
 % psnr_i = zeros(8,1);
-% ssim_i = zeros(8,1);
-% load("ours_park3_modify.mat")
+% % ssim_i = zeros(8,1);
+% load("ours_traffic.mat")
 % figure(5)
 % colormap('gray')
-% imagesc(x(:,:,8));
+% imagesc(x(:,:,5));
 % set(gca,'xtick',[],'ytick',[]);
 % 
 % 
@@ -160,28 +160,20 @@
 % end
 % 
 % 
-% % load("GAP-TV_fan4.mat")
-% % for i=1:14
-% %     figure(1)
-% %     colormap('gray')
-% %     subplot(2,7,i)
-% %     imagesc(theta(:,:,i)); 
-% %     set(gca,'xtick',[],'ytick',[]); 
-% % end
+% load("GAP-TV_fan4.mat")
+% for i=1:14
+%     figure(1)
+%     colormap('gray')
+%     subplot(2,7,i)
+%     imagesc(theta(:,:,i)); 
+%     set(gca,'xtick',[],'ytick',[]); 
+% end
 % % 
-% % load("ours_fan4.mat")
-% % for i=1:14
-% %     figure(2)
-% %     colormap('gray')
-% %     subplot(2,7,i)
-% %     imagesc(x_ista(:,:,i)); 
-% %     set(gca,'xtick',[],'ytick',[]); 
-% % end
-load("DeSCI_fan4.mat")
+load("ours_fan6.mat")
 for i=1:14
     figure(2)
     colormap('gray')
-    subplot(2,7,i)
-    imagesc(vdesci(:,:,i)); 
+    subplot(2,7,15-i)
+    imagesc(x_ista(:,:,i)/255); 
     set(gca,'xtick',[],'ytick',[]); 
 end

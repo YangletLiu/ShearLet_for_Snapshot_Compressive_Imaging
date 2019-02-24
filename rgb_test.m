@@ -1,21 +1,21 @@
 clear
 clc
 
-fname = 'Fruits';
+fname = '5triBalls22_cacti.mat';
 load(fname);
 Row = 512;
 Col = 512;
 rotnum = 2;
-y = Y(:,:,5);
-%y = Y(:,:,5)*22*256;
+y = meas; % 归一化过，最大是22
+Phi = mask;
 codedNum = 22;  % How many frames collapsed to 1 measurement
 
-bFig = false;
+bFig = true;
 bShear = true;
-sigma = 0.03;
-LAMBDA  = 40;
+sigma = 0.016; 
+LAMBDA  = 16;
 L       = 10;
-niter   = 40; 
+niter   = 25; 
 
 x0      = zeros(Row/2, Col/2,codedNum);
 L1              = @(x) norm(x, 1);
@@ -70,9 +70,9 @@ for rr=1:4
     AT      = @(y) fft2(sampleH(Phi_use,y,codedNum,0));
     COST.function	= @(X) 1/2 * L2(A(X) - yuse) + LAMBDA * L1(X(:));
     
-    [theta, obj]	= MFISTA(A, AT, x0, yuse, LAMBDA, L, sigma, niter, COST, bFig, 0,bShear);
+    theta = MFISTA(A, AT, x0, yuse, LAMBDA, L, sigma, niter, COST, bFig, 0,bShear,1);
     theta = real(ifft2(theta));
-    x_ista(:,:,(codedNum:-1:1),rr) = theta;
+    x_ista(:,:,(codedNum:-1:1),rr) = theta/255;
 end
 
 [Img_recon_sensor X_recon_col] = my_demosaic(Row,Col,1,codedNum,rotnum,x_ista);

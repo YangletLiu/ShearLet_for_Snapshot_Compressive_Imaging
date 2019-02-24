@@ -11,12 +11,16 @@ clear ;
 close all;
 home;
 
-bFig = true;
 bGPU = false;
+bReal = false;
 %% DATASET
-% load("4fan14_cacti.mat") % meas,mask % 0.5/1e5
+% load("6fan14_cacti.mat") % meas,mask % 1/2e5/0.03
 % codedNum = 14;
 % test_data = 1;
+% bReal = true;
+% sigma = 0.03;
+% LAMBDA  = 0.5;  
+% L       = 2e5;
 
 % load("traffic8_cacti.mat") % orig,meas,mask
 % codedNum = 8;
@@ -49,8 +53,9 @@ for k = test_data
         M = gpuArray(single(M));
     end
     bShear = true;
+    bFig = true;
     sigma = 1;
-    LAMBDA  = 12;
+    LAMBDA  = 12;  
     L       = 10;
     niter   = 200; 
     A       = @(x) sample(M,ifft2(x),codedNum);
@@ -74,13 +79,13 @@ for k = test_data
 
 %% RUN
     tic
-    x_ista	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear);
+    x_ista	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
     time = toc;
     x_ista = real(ifft2(x_ista));
     if bGPU
         x_ista = gather(x_ista);
     end
-    x_ista = TV_denoising(x_ista/255,0.05,10)*255;
+    %x_ista = TV_denoising(x_ista/255,0.05,10)*255;
     nor         = max(x(:));
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);
