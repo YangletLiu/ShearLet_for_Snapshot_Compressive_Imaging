@@ -4,7 +4,7 @@ close all;
 home;
 
 bFig = true;
-bGPU = false;
+bParfor = false;
 %% DATASET
 load("kobe32_cacti.mat") % orig,meas,mask
 codedNum = 8;
@@ -22,7 +22,7 @@ for k = test_data
 %% DATA PROCESS
     if exist('orig','var')
         bOrig   = true;
-        x       = orig(65:128,65:128,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
+        x       = orig(81:96,97:112,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
         if max(x(:))<=1
             x       = x * 255;
         end
@@ -30,13 +30,22 @@ for k = test_data
         bOrig   = false;
         x       = zeros(size(mask));
     end
-    n       = 64;
-    s       = 8; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
-    niter   = 5; 
+    n       = 16;
+    L       = 5000;
+    s       = 2; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
+    niter   = 10; 
 %% RUN
+    if bParfor
+      mycluster = parcluster('local');
+      delete(gcp('nocreate')); % delete current parpool
+      poolobj = parpool(mycluster,mycluster.NumWorkers);
+    end
     tic
-    x_rp	= random_projection(s,n,niter,x);
+    x_rp	= random_projection(L,s,n,niter,x,bParfor);
     time = toc;
+    if bParfor
+        delete(poolobj);
+    end
     % x_rp = TV_denoising(x_rp/255,0.05,10)*255;
     nor         = max(x(:));
     psnr_x_rp = zeros(codedNum,1);
@@ -66,8 +75,6 @@ for k = test_data
         end
         pause(1);
     end
-    psnr_ista = mean(psnr_x_rp);
-    ssim_ista = mean(ssim_x_rp);
-
-    %save(sprintf("results/traffic/ours_traffic%d.mat",k))
+    psnr_rp = mean(psnr_x_rp);
+    ssim_rp = mean(ssim_x_rp);
 end
