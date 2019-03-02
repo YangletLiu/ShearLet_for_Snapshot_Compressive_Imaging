@@ -10,13 +10,15 @@ function rec  = random_projection(L,s,n,iteration,orig,bParfor)
 
     % 单位根
     w = exp(-2*pi*(1i)/n);
-    % 生成basis vector psi_first，对每个ite和k，psi都一样，都是fft2的矩阵
-    psi_first = zeros(N,1);
-    psi_first(1) = 1;
-    for t = 2:N
-        psi_first(t) = w*psi_first(t-1);
+    % 对每个ite和k，psi都一样，都是fft2的矩阵
+    dft = ones(n,n);
+    for i=2:n
+        for j=2:n
+            dft(i,j) = w^((i-1)*(j-1));
+        end
     end
-
+    psi = kron(dft,dft);
+    
     if bParfor
         theta = cell(frames,1);
     else
@@ -49,7 +51,7 @@ function rec  = random_projection(L,s,n,iteration,orig,bParfor)
             parfor k = 1:frames
                 theta_k = zeros(N,1);
                 for i =1:N
-                    x = Phi(:,:,k)*((w^(i-1))*psi_first);
+                    x = Phi(:,:,k)*(psi(i,:)).';
                     theta_k =  y'*x/L;
                 end
                 theta(k) = {theta{k}+theta_k};
@@ -57,7 +59,7 @@ function rec  = random_projection(L,s,n,iteration,orig,bParfor)
         else
             for k = 1:frames
                  for i =1:N
-                    x = Phi(:,:,k)*((w^(i-1))*psi_first);
+                    x = Phi(:,:,k)*(psi(i,:)).';
                     theta((k-1)*N+i) = theta((k-1)*N+i) + y'*x/L;
                 end
             end

@@ -11,12 +11,13 @@ codedNum = 8;
 test_data = 1;
 
 %% Verify Lemma 2
-test = orig(:,:,1:8);
-testf = fft2(test);
-testm = max(testf(:)); % L_inf
-tests = sum(sum(sum(test.*conj(test)))); % L2
-testr = testm/tests;
-lemmar = 11/(32*sqrt(2)); % log2048/(sqrt(2048))
+% test = orig(:,:,1:8);
+% testf = fft2(test);
+% testm = max(testf(:)); % L_inf
+% tests = sum(sum(sum(test.*conj(test)))); % L2
+% testr = testm/tests;
+% lemmar = 11/(32*sqrt(2)); % log2048/(sqrt(2048))
+% M =0.25;
 
 for k = test_data
 %% DATA PROCESS
@@ -31,7 +32,7 @@ for k = test_data
         x       = zeros(size(mask));
     end
     n       = 16;
-    L       = 5000;
+    L       = 200;
     s       = 2; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
     niter   = 10; 
 %% RUN
