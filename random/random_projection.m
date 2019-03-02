@@ -10,7 +10,7 @@ N = n*n;
 L = N; % 暂时如此
 
 % 单位根
-w = exp(2*pi/n);
+w = exp(-2*pi*(1i)/n);
 % 生成basis vector psi_first，对每个ite和k，psi都一样，都是fft2的矩阵
 psi_first = zeros(N,1);
 psi_first(1) = 1;
