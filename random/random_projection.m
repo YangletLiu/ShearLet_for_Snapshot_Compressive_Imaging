@@ -30,9 +30,9 @@ function rec  = random_projection(L,s,n,iteration,orig,bParfor)
         % 随机初始化Phi（应该利用已知的mask生成，这里先测试随机的一个
         Phi = zeros(L,width*height,frames);
         for k = 1:frames
-            for i =1:n
-                order = randperm(n);
-                nonzero_num = n/s;
+            for i =1:L
+                order = randperm(N);
+                nonzero_num = N/s;
                 positive = order(1:nonzero_num/2);
                 negtive = order(nonzero_num/2+1:nonzero_num);
                 Phi(i,positive,k) = 1;
