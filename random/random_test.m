@@ -5,6 +5,7 @@ home;
 
 bFig = true;
 bParfor = false;
+bRandom = false;
 %% DATASET
 load("kobe32_cacti.mat") % orig,meas,mask
 codedNum = 8;
@@ -31,10 +32,15 @@ for k = test_data
         bOrig   = false;
         x       = zeros(size(mask));
     end
+    if ~bOrig
+        bRandom = false;
+    end
+    M = mask(81:96,97:112,:);
+    captured = meas(81:96,97:112,k);
     n       = 16;
     L       = 2000;
     s       = 8; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
-    niter   = 500; 
+    niter   = 100; 
 %% RUN
     if bParfor
       mycluster = parcluster('local');
@@ -42,17 +48,20 @@ for k = test_data
       poolobj = parpool(mycluster,mycluster.NumWorkers);
     end
     tic
-    x_rp	= random_projection(L,s,n,niter,x,bParfor);
+    x_rp	= random_projection(L,s,n,niter,M,captured,x,bParfor,bRandom);
     time = toc;
     if bParfor
         delete(poolobj);
     end
     % x_rp = TV_denoising(x_rp/255,0.05,10)*255;
-    nor         = max(x(:));
-    min_rp = min(x_rp(:));
-    max_rp = max(x_rp(:));
+    nor         = 255;
+    ratio  = max(max(x))/nor;
+    min_rp = min(min(x_rp));
+    max_rp = max(max(x_rp));
     nor_rp = max_rp-min_rp;
-    x_rp = (x_rp-min_rp)/nor_rp;
+    for f=1:codedNum
+        x_rp(:,:,f) = (x_rp(:,:,f)-min_rp(f))/nor_rp(f)*ratio(f);
+    end
     psnr_x_rp = zeros(codedNum,1);
     ssim_x_rp = zeros(codedNum,1);
 %% DISPLAY

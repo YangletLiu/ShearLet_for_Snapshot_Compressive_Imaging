@@ -2,9 +2,8 @@
 % Phi = 0,  1-1/s
 %       -1, 1/2s
 
-% Phi N*8N （L*8N） (先默认L为N进行测试
 % 先对图像的局部进行测试
-function rec  = random_projection(L,s,n,iteration,orig,bParfor)
+function rec  = random_projection(L,s,n,iteration,mask,captured,orig,bParfor,bRandom)
     [width, height, frames] = size(orig);
     N = n*n;
 
@@ -29,22 +28,12 @@ function rec  = random_projection(L,s,n,iteration,orig,bParfor)
         disp(ite)
         % 随机初始化Phi（应该利用已知的mask生成，这里先测试随机的一个
         Phi = zeros(L,width*height,frames);
-        for k = 1:frames
-            for i =1:L
-                order = randperm(N);
-                nonzero_num = N/s;
-                positive = order(1:nonzero_num/2);
-                negtive = order(nonzero_num/2+1:nonzero_num);
-                Phi(i,positive,k) = 1;
-                Phi(i,negtive,k) = -1;
-            end
+        if bRandom
+            [Phi,y] = generate_test(L,N,frames,s,orig,false);
+        else
+            [Phi,y] = generate(L,N,frames,s,mask,captured);
         end
-        Phi = sqrt(s)*Phi;
-        
-        % 生成y=Phi*orig，这里因为拿得到orig为简便先这么写，实际数据时应该是根据Phi的生成方式，由meas仿照Phi生成y
-        Phi = reshape(Phi,[L,width*height*frames]);
-        y = Phi*orig(:);
-        Phi = reshape(Phi,[L,width*height,frames]);
+              
 
         % 拆开对k个二维图片分别操作
         if bParfor
