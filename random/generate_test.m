@@ -1,4 +1,5 @@
 function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
+    Phi = zeros(L,N,frames);    
     if bRow
         for k = 1:frames
             for i =1:L
@@ -20,7 +21,7 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     end
     Phi = sqrt(s)*Phi;
     % Éú³Éy=Phi*orig
-    Phi = reshape(Phi,[L,width*height*frames]);
+    Phi = reshape(Phi,[L,N*frames]);
     y = Phi*orig(:);
-    Phi = reshape(Phi,[L,width*height,frames]);
+    Phi = reshape(Phi,[L,N,frames]);
 end

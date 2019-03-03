@@ -1,5 +1,5 @@
 function [Phi,y] = generate(L,N,frames,s,mask,captured)
-    % 给定的s只是一个参考值，实际上可能无法满足，会在其附近，一般偏低
+    % 给定的s只是一个参考值，实际上可能无法满足，会在其附近，一般偏高
     % mask n×n×8 (对角化后为8N×8N)
     % captured n×n
     % Phi L×8N
@@ -27,7 +27,7 @@ function [Phi,y] = generate(L,N,frames,s,mask,captured)
     end
     ratio = type_weight/sum(type_weight);
     
-    num_each_type = ceil(nonzero_num*ratio./type_id.'/2);
+    num_each_type = floor(nonzero_num*ratio./type_id.'/2);
     real_s = frames*N/sum(num_each_type.*type_id.'*2);
     
     % 生成Phi及其对应的y
