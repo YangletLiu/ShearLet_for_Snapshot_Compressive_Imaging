@@ -5,7 +5,7 @@ home;
 
 bFig = true;
 bParfor = false;
-bRandom = false;
+bRandom = true;
 %% DATASET
 load("kobe32_cacti.mat") % orig,meas,mask
 codedNum = 8;
@@ -20,11 +20,23 @@ test_data = 1;
 % lemmar = 11/(32*sqrt(2)); % log2048/(sqrt(2048))
 % M =0.25;
 
+x_1 = 81;
+x_2 = 96;
+y_1 = 97;
+y_2 = 112;
+n = 16;
+
+x_1 = 65;
+x_2 = 96;
+y_1 = 97;
+y_2 = 128;
+n = 32;
+
 for k = test_data
 %% DATA PROCESS
     if exist('orig','var')
         bOrig   = true;
-        x       = orig(81:96,97:112,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
+        x       = orig(x_1:x_2,y_1:y_2,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
         if max(x(:))<=1
             x       = x * 255;
         end
@@ -35,12 +47,11 @@ for k = test_data
     if ~bOrig
         bRandom = false;
     end
-    M = mask(81:96,97:112,:);
-    captured = meas(81:96,97:112,k);
-    n       = 16;
+    M = mask(x_1:x_2,y_1:y_2,:);
+    captured = meas(x_1:x_2,y_1:y_2,k);
     L       = 2000;
-    s       = 8; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
-    niter   = 100; 
+    s       = 4; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
+    niter   = 10; 
 %% RUN
     if bParfor
       mycluster = parcluster('local');
