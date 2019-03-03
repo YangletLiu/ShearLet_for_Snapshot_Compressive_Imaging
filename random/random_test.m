@@ -32,9 +32,9 @@ for k = test_data
         x       = zeros(size(mask));
     end
     n       = 16;
-    L       = 200;
-    s       = 2; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
-    niter   = 10; 
+    L       = 2000;
+    s       = 8; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
+    niter   = 500; 
 %% RUN
     if bParfor
       mycluster = parcluster('local');
@@ -49,6 +49,10 @@ for k = test_data
     end
     % x_rp = TV_denoising(x_rp/255,0.05,10)*255;
     nor         = max(x(:));
+    min_rp = min(x_rp(:));
+    max_rp = max(x_rp(:));
+    nor_rp = max_rp-min_rp;
+    x_rp = (x_rp-min_rp)/nor_rp;
     psnr_x_rp = zeros(codedNum,1);
     ssim_x_rp = zeros(codedNum,1);
 %% DISPLAY
@@ -65,8 +69,8 @@ for k = test_data
             imagesc(x_rp(:,:,i));  	
             set(gca,'xtick',[],'ytick',[]); 
 
-            psnr_x_rp(i) = psnr(x_rp(:,:,i)./nor, x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
-            ssim_x_rp(i) = ssim(x_rp(:,:,i)./nor, x(:,:,i)./nor);
+            psnr_x_rp(i) = psnr(x_rp(:,:,i), x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
+            ssim_x_rp(i) = ssim(x_rp(:,:,i), x(:,:,i)./nor);
             title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_rp(i), '%.4f')], ['SSIM : ' num2str(ssim_x_rp(i), '%.4f')]});
         else 
             colormap gray;
