@@ -5,7 +5,7 @@ home;
 
 bFig = true;
 bParfor = false;
-bRandom = true;
+bRandom = false;
 %% DATASET
 load("kobe32_cacti.mat") % orig,meas,mask
 codedNum = 8;
@@ -26,11 +26,11 @@ y_1 = 97;
 y_2 = 112;
 n = 16;
 
-x_1 = 65;
-x_2 = 96;
-y_1 = 97;
-y_2 = 128;
-n = 32;
+% x_1 = 65;
+% x_2 = 96;
+% y_1 = 97;
+% y_2 = 128;
+% n = 32;
 
 for k = test_data
 %% DATA PROCESS
@@ -49,9 +49,9 @@ for k = test_data
     end
     M = mask(x_1:x_2,y_1:y_2,:);
     captured = meas(x_1:x_2,y_1:y_2,k);
-    L       = 2000;
-    s       = 4; % s越大，随机投影矩阵中的0越多，为简便设为2的指数次
-    niter   = 10; 
+    L       = 2000; % 投影数增大
+    s       = 16; % s越小越稠密
+    niter   = 3; 
 %% RUN
     if bParfor
       mycluster = parcluster('local');
