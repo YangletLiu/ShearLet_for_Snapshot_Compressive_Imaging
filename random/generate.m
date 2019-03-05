@@ -8,12 +8,6 @@ function [Phi,y] = generate(L,N,frames,s,mask,captured)
     captured = captured(:);
     captured = 2*(captured-mean(captured));
     mask(mask==0) = -1;
-    diag_mask = zeros(N,N,frames);
-    for k =1:frames
-        temp_mask = mask(:,:,k);
-        diag_mask(:,:,k) = diag(temp_mask(:)); 
-    end
-    n = sqrt(N);
     
     nonzero_num = frames*N/s;
     % 生成Phi及其对应的y
@@ -30,8 +24,7 @@ function [Phi,y] = generate(L,N,frames,s,mask,captured)
             else
                 selecteds = [selecteds,selected];
             end
-            % mask(mod(selected-1,n)+1,ceil(selected/n),:)
-            Phi(i,:,:) = Phi(i,:,:) + diag_mask(selected,:,:);
+            Phi(i,:,:) = Phi(i,:,:) + map2vec(N,frames,selected,mask);
             y(i) = y(i) + captured(selected);
             real_s = real_s + 8;
             s_i = s_i + 8;
@@ -42,6 +35,6 @@ function [Phi,y] = generate(L,N,frames,s,mask,captured)
     
     Phi = sqrt(real_s)*Phi;
     
-    % est = mean(Phi(:)) % 期望 0
-    % var = sum(Phi(:).*Phi(:))/(L*N*frames) % 方差 1
+    expectation = mean(Phi(:)) % 期望 0
+    variance = sum(Phi(:).*Phi(:))/(L*N*frames) % 方差 1
 end
