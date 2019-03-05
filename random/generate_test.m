@@ -22,6 +22,6 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     Phi = sqrt(s)*Phi;
     % Éú³Éy=Phi*orig
     Phi = reshape(Phi,[L,N*frames]);
-    y = Phi*orig(:);
+    y = Phi*orig(:)/sqrt(L);
     Phi = reshape(Phi,[L,N,frames]);
 end

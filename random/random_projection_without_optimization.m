@@ -39,7 +39,7 @@ function rec  = random_projection_without_optimization(L,s,n,iteration,mask,capt
                 theta_k = zeros(N,1);
                 for i =1:N
                     x = Phi(:,:,k)*(psi(i,:)).';
-                    theta_k =  y'*x/L;
+                    theta_k =  y'*x/sqrt(L);
                 end
                 theta(k) = {theta{k}+theta_k};
             end
@@ -47,7 +47,7 @@ function rec  = random_projection_without_optimization(L,s,n,iteration,mask,capt
             for k = 1:frames
                  for i =1:N
                     x = Phi(:,:,k)*(psi(i,:)).';
-                    theta((k-1)*N+i) = theta((k-1)*N+i) + y'*x/L;
+                    theta((k-1)*N+i) = theta((k-1)*N+i) + y'*x/sqrt(L);
                 end
             end
         end

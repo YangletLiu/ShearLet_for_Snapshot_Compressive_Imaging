@@ -49,7 +49,7 @@ for k = test_data
     end
     M = mask(x_1:x_2,y_1:y_2,:);
     captured = meas(x_1:x_2,y_1:y_2,k);
-    L       = 100; % 投影数增大
+    L       = 1000; % 投影数增大
     s       = 2; % s越小越稠密
     niter   = 10; 
 %% RUN
@@ -105,7 +105,7 @@ for k = test_data
     ssim_rp = mean(ssim_x_rp);
 end
 
-% [Phi,y] = generate(L,N,frames,s,mask,captured);
-% Phi = reshape(Phi,[L,N*frames]);
-% y_ = Phi*orig(:); % y和y_不同
-% Phi = reshape(Phi,[L,N,frames]);
+% [Phi,y] = generate_without_optimization(100,256,8,2,mask,captured);
+% Phi = reshape(Phi,[100,256*8]);
+% y_ = Phi*x(:)/sqrt(100); % y和y_不同
+% Phi = reshape(Phi,[100,256,8]);

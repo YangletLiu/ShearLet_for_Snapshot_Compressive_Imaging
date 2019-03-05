@@ -40,7 +40,7 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
         end
         for i = 1:N
             for k = 1:frames
-                theta((k-1)*N+i) = theta((k-1)*N+i) + y'*x(:,i,k)/L;
+                theta((k-1)*N+i) = theta((k-1)*N+i) + y'*x(:,i,k)/sqrt(L);
             end
         end
     end
