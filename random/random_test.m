@@ -51,7 +51,7 @@ for k = test_data
     captured = meas(x_1:x_2,y_1:y_2,k);
     L       = 2000; % 投影数增大
     s       = 2; % s越小越稠密
-    niter   = 100; 
+    niter   = 50; 
 %% RUN
     if bParfor
       mycluster = parcluster('local');
@@ -59,7 +59,7 @@ for k = test_data
       poolobj = parpool(mycluster,mycluster.NumWorkers);
     end
     tic
-    x_rp	= random_projection(L,s,n,niter,M,captured,x,bParfor,bRandom);
+    x_rp	= random_projection(L,s,n,niter,M,captured,x);
     time = toc;
     if bParfor
         delete(poolobj);
@@ -103,3 +103,8 @@ for k = test_data
     psnr_rp = mean(psnr_x_rp);
     ssim_rp = mean(ssim_x_rp);
 end
+
+% [Phi,y] = generate(L,N,frames,s,mask,captured);
+% Phi = reshape(Phi,[L,N*frames]);
+% y_ = Phi*orig(:); % y和y_不同
+% Phi = reshape(Phi,[L,N,frames]);
