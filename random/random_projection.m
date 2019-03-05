@@ -27,7 +27,6 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig,bParfor,bRa
     for ite = 1:iteration
         disp(ite)
         % 随机初始化Phi（应该利用已知的mask生成，这里先测试随机的一个
-        Phi = zeros(L,width*height,frames);
         if bRandom
             [Phi,y] = generate_test(L,N,frames,s,orig,false);
         else

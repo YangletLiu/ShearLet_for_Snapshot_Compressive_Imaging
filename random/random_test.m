@@ -50,8 +50,8 @@ for k = test_data
     M = mask(x_1:x_2,y_1:y_2,:);
     captured = meas(x_1:x_2,y_1:y_2,k);
     L       = 2000; % 投影数增大
-    s       = 16; % s越小越稠密
-    niter   = 3; 
+    s       = 2; % s越小越稠密
+    niter   = 100; 
 %% RUN
     if bParfor
       mycluster = parcluster('local');
