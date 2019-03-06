@@ -24,14 +24,13 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
     psi = kron(dft,dft);
     theta = zeros(N*frames,1);
     y = zeros(L,1);
-    nonzero_num = zeros(L,1);
     x = zeros(L,N,frames);
     % 做iteration次，求取期望
     for ite = 1:iteration
         disp(ite)
         % 拆开对k个二维图片分别操作
         for j = 1:L
-            [phi,y(j),nonzero_num(j)] = generate(N,frames,s,mask,captured);
+            [phi,y(j)] = generate(N,frames,s,mask,captured);
             for i =1:N
                 for k = 1:frames
                     x(j,i,k) = phi(:,:,k)*(psi(i,:)).';
@@ -44,7 +43,7 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
             end
         end
     end
-    real_s = L*frames*N/sum(nonzero_num);
+    real_s = N/(ceil(N/s));
     theta = sqrt(real_s)*theta/iteration;
     rec = reshape(theta,[width, height, frames]);
     rec = real(ifft2(rec));
