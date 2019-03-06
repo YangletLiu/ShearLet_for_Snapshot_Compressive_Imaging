@@ -24,4 +24,7 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     Phi = reshape(Phi,[L,N*frames]);
     y = Phi*orig(:)/sqrt(L);
     Phi = reshape(Phi,[L,N,frames]);
+    
+    expectation = mean(Phi(:)) % ÆÚÍû 0
+    variance = sum(Phi(:).*Phi(:))/(L*N*frames) % ·½²î 1
 end

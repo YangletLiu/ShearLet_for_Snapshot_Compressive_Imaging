@@ -30,7 +30,7 @@ function rec  = random_projection_without_optimization(L,s,n,iteration,mask,capt
         if bRandom
             [Phi,y] = generate_test(L,N,frames,s,orig,false);
         else
-            [Phi,y] = generate_without_optimization(L,N,frames,s,mask,captured);
+            [Phi,y] = generate_without_optimization(L,N,frames,s,mask,captured,orig);
         end
               
         % 拆开对k个二维图片分别操作

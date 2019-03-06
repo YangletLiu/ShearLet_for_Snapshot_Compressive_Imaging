@@ -1,4 +1,4 @@
-function [Phi,y] = generate_without_optimization(L,N,frames,s,mask,captured)
+function [Phi,y] = generate_without_optimization(L,N,frames,s,mask,captured,orig)
     % mask n×n×8 (对角化后为8N×8N)
     % captured n×n
     % Phi L×8N
@@ -23,14 +23,23 @@ function [Phi,y] = generate_without_optimization(L,N,frames,s,mask,captured)
             else
                 selecteds = [selecteds,selected];
             end
-            Phi(i,:,:) = Phi(i,:,:) + map2vec(N,frames,selected,mask);
-            y(i) = y(i) + captured(selected);
+            if rand(1)>0.5
+                Phi(i,:,:) = Phi(i,:,:) + map2vec(N,frames,selected,mask);
+                y(i) = y(i) + captured(selected);
+            else
+                Phi(i,:,:) = Phi(i,:,:) - map2vec(N,frames,selected,mask);
+                y(i) = y(i) - captured(selected);
+            end
             j = j + 1;
         end
     end
     real_s = N/nonzero_num;
     
     Phi = sqrt(real_s)*Phi;
+    
+    Phi = reshape(Phi,[L,N*frames]);
+    y = Phi*orig(:)/sqrt(L);
+    Phi = reshape(Phi,[L,N,frames]);
     
     expectation = mean(Phi(:)) % 期望 0
     variance = sum(Phi(:).*Phi(:))/(L*N*frames) % 方差 1

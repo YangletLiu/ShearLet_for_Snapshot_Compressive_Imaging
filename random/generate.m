@@ -16,8 +16,13 @@ function [phi,y] = generate(N,frames,s,mask,captured)
         else
             selecteds = [selecteds,selected];
         end
-        phi = phi + map2vec(N,frames,selected,mask);
-        y = y + captured(selected);
+        if rand(1)>0.5
+            phi = phi + map2vec(N,frames,selected,mask);
+            y = y + captured(selected);
+        else
+            phi = phi - map2vec(N,frames,selected,mask);
+            y = y - captured(selected);
+        end
         i = i + 1;
     end
 end
