@@ -21,7 +21,7 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
             dft(i,j) = w^((i-1)*(j-1));
         end
     end
-    psi = kron(dft,dft);
+    % psi = kron(dft,dft);
     theta = zeros(N*frames,1);
     y = zeros(L,1);
     x = zeros(L,N,frames);
@@ -33,7 +33,10 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
             [phi,y(j)] = generate(N,frames,s,mask,captured);
             for i =1:N
                 for k = 1:frames
-                    x(j,i,k) = phi(:,:,k)*(psi(i,:)).';
+                    p = ceil(N/n);
+                    q = mod(N-1,n)+1;
+                    psi = kronv(dft(p,:),dft(q,:));
+                    x(j,i,k) = phi(:,:,k)*psi;
                 end
             end
         end
