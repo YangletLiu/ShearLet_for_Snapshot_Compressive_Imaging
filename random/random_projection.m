@@ -33,8 +33,8 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
             [phi,y(j)] = generate(N,frames,s,mask,captured);
             for i =1:N
                 for k = 1:frames
-                    p = ceil(N/n);
-                    q = mod(N-1,n)+1;
+                    p = ceil(i/n);
+                    q = mod(i-1,n)+1;
                     psi = kronv(dft(p,:),dft(q,:));
                     x(j,i,k) = phi(:,:,k)*psi;
                 end
