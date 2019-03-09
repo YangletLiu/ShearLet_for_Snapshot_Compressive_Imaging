@@ -28,7 +28,7 @@ function rec  = random_projection_without_optimization(L,s,n,iteration,mask,capt
         disp(ite)
         % 随机初始化Phi（应该利用已知的mask生成，这里先测试随机的一个
         if bRandom
-            [Phi,y] = generate_test(L,N,frames,s,orig,false);
+            [Phi,y] = generate_test(L,N,frames,s,orig,true);
         else
             [Phi,y] = generate_without_optimization(L,N,frames,s,mask,captured,orig);
         end
@@ -45,10 +45,8 @@ function rec  = random_projection_without_optimization(L,s,n,iteration,mask,capt
             end
         else
             for k = 1:frames
-                 for i =1:N
-                    x = Phi(:,:,k)*(psi(i,:)).';
-                    theta((k-1)*N+i) = theta((k-1)*N+i) + y'*x/sqrt(L);
-                end
+                x = Phi(:,:,k)*(psi).';
+                theta((k-1)*N+1:k*N) = theta((k-1)*N+1:k*N) + (y'*x).'/sqrt(L);
             end
         end
     end

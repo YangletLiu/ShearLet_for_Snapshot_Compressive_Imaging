@@ -29,21 +29,21 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
     for ite = 1:iteration
         disp(ite)
         % 拆开对k个二维图片分别操作
-        for j = 1:L
-            [phi,y(j)] = generate(N,frames,s,mask,captured);
-            for i =1:N
+        for i = 1:L
+            [phi,y(i)] = generate(N,frames,s,mask,captured);
+            for j =1:N
                 for k = 1:frames
-                    p = ceil(i/n);
-                    q = mod(i-1,n)+1;
+                    p = ceil(j/n);
+                    q = mod(j-1,n)+1;
                     psi = kronv(dft(p,:),dft(q,:));
-                    x(j,i,k) = phi(:,:,k)*psi;
+                    x(i,j,k) = phi(:,:,k)*psi;
                 end
             end
+            y(i) = phi(:).'*orig(:);
         end
-        for i = 1:N
-            for k = 1:frames
-                theta((k-1)*N+i) = theta((k-1)*N+i) + y'*x(:,i,k)/sqrt(L);
-            end
+        
+        for k = 1:frames
+            theta((k-1)*N+1:k*N) = theta((k-1)*N+1:k*N) + (y'*x(:,:,k)).'/sqrt(L);
         end
     end
     real_s = N/(ceil(N/s));

@@ -7,22 +7,11 @@ function [phi,y] = generate(N,frames,s,mask,captured)
     phi = zeros(1,N,frames);
     y = 0;
     nonzero_num = ceil(N/s);
-    selecteds = [];
-    i = 0;
-    while i < nonzero_num
-        selected = unidrnd(N);
-        if ismember(selected,selecteds)
-            continue;
-        else
-            selecteds = [selecteds,selected];
-        end
-        if rand(1)>0.5
-            phi = phi + map2vec(N,frames,selected,mask);
-            y = y + captured(selected);
-        else
-            phi = phi - map2vec(N,frames,selected,mask);
-            y = y - captured(selected);
-        end
-        i = i + 1;
-    end
+    order = randperm(N);
+    positive = order(1:ceil(nonzero_num/2));
+    negative = order(1+ceil(nonzero_num/2):nonzero_num);
+    phi = phi + map2vec(N,frames,positive,mask);
+    y = y + sum(captured(positive));
+    phi = phi - map2vec(N,frames,negative,mask);
+    y = y - sum(captured(negative));
 end

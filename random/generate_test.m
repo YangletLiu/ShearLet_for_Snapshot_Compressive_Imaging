@@ -1,5 +1,5 @@
 function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
-    Phi = zeros(L,N,frames);    
+    Phi = zeros(L,N,frames);  
     if bRow
         for k = 1:frames
             for i =1:L
@@ -19,6 +19,17 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
         Phi(positive) = 1;
         Phi(negtive) = -1; 
     end
+    
+    % ·ÂÕÕSCI
+    otherFrames = rand([1,N,frames]);
+    otherFrames(otherFrames<0.5) = -1;
+    otherFrames(otherFrames>0.5) = 1;
+    for i=1:L
+        for k=2:frames
+            Phi(i,:,k) = Phi(i,:,1).*otherFrames(:,:,k);
+        end
+    end
+    
     Phi = sqrt(s)*Phi;
     % Éú³Éy=Phi*orig
     Phi = reshape(Phi,[L,N*frames]);

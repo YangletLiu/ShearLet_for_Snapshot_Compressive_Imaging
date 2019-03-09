@@ -14,24 +14,13 @@ function [Phi,y] = generate_without_optimization(L,N,frames,s,mask,captured,orig
     Phi = zeros(L,N,frames);
     y = zeros(L,1);
     for i=1:L
-        selecteds = [];
-        j = 0;
-        while j < nonzero_num
-            selected = unidrnd(N);
-            if ismember(selected,selecteds)
-                continue;
-            else
-                selecteds = [selecteds,selected];
-            end
-            if rand(1)>0.5
-                Phi(i,:,:) = Phi(i,:,:) + map2vec(N,frames,selected,mask);
-                y(i) = y(i) + captured(selected);
-            else
-                Phi(i,:,:) = Phi(i,:,:) - map2vec(N,frames,selected,mask);
-                y(i) = y(i) - captured(selected);
-            end
-            j = j + 1;
-        end
+        order = randperm(N);
+        positive = order(1:ceil(nonzero_num/2));
+        negative = order(1+ceil(nonzero_num/2):nonzero_num);
+        Phi(i,:,:) = Phi(i,:,:) + map2vec(N,frames,positive,mask);
+        y(i) = y(i) + sum(captured(positive));
+        Phi(i,:,:) = Phi(i,:,:) - map2vec(N,frames,negative,mask);
+        y(i) = y(i) - sum(captured(negative));
     end
     real_s = N/nonzero_num;
     

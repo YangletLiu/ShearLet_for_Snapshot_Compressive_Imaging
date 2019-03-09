@@ -8,7 +8,6 @@ bParfor = false;
 bRandom = false;
 %% DATASET
 load("kobe32_cacti.mat") % orig,meas,mask
-codedNum = 1;
 test_data = 1;
 
 %% Verify Lemma 2
@@ -26,17 +25,25 @@ y_1 = 97;
 y_2 = 112;
 n = 16;
 
-% x_1 = 65;
-% x_2 = 96;
-% y_1 = 97;
-% y_2 = 128;
-% n = 32;
+x_1 = 65;
+x_2 = 96;
+y_1 = 97;
+y_2 = 128;
+n = 32;
 
-% x_1 = 1;
-% x_2 = 256;
-% y_1 = 1;
-% y_2 = 256;
-% n = 256;
+x_1 = 1;
+x_2 = 128;
+y_1 = 1;
+y_2 = 128;
+n = 128;
+
+x_1 = 65;
+x_2 = 128;
+y_1 = 65;
+y_2 = 128;
+n = 64;
+
+codedNum = 1;
 for k = test_data
 %% DATA PROCESS
     if exist('orig','var')
@@ -54,7 +61,7 @@ for k = test_data
     end
     M = mask(x_1:x_2,y_1:y_2,1:codedNum);
     captured = meas(x_1:x_2,y_1:y_2,k);
-    L       = 100; % 投影数增大
+    L       = 2e4; % 投影数增大
     s       = 2; % s越小越稠密
     niter   = 10; 
 %% RUN
@@ -64,8 +71,8 @@ for k = test_data
       poolobj = parpool(mycluster,mycluster.NumWorkers);
     end
     tic
-    %x_rp	= random_projection(L,s,n,niter,M,captured,x);
-    x_rp	= random_projection_without_optimization(L,s,n,niter,M,captured,x,bParfor,bRandom);
+    x_rp	= random_projection(L,s,n,niter,M,captured,x);
+    %x_rp	= random_projection_without_optimization(L,s,n,niter,M,captured,x,bParfor,bRandom);
     time = toc;
     if bParfor
         delete(poolobj);
