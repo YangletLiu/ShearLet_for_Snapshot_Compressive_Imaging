@@ -1,4 +1,5 @@
 function vec_out = kronv(vec1,vec2)
+    % Kronecker积的某行的结果
     n = length(vec1);
     vec_out = zeros(n*n,1);
     for i = 1:n

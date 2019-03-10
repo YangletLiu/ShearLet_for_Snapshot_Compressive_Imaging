@@ -1,6 +1,7 @@
+% 完全随机生成投影矩阵
 function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     Phi = zeros(L,N,frames);  
-    if bRow
+    if bRow % 按行生成，每行的1或-1数目相同
         for k = 1:frames
             for i =1:L
                 order = randperm(N);
@@ -11,7 +12,7 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
                 Phi(i,negtive,k) = -1;
             end
         end
-    else
+    else % 直接生成一个随机矩阵
         order = randperm(N*frames*L);
         nonzero_num = N*frames*L/s;
         positive = order(1:nonzero_num/2);
@@ -21,16 +22,16 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     end
     
     % 仿照SCI
-    otherFrames = rand([1,N,frames]);
-    otherFrames(otherFrames<0.5) = -1;
-    otherFrames(otherFrames>0.5) = 1;
-    for i=1:L
-        for k=2:frames
-            Phi(i,:,k) = Phi(i,:,1).*otherFrames(:,:,k);
-        end
-    end
+%     otherFrames = rand([1,N,frames]);
+%     otherFrames(otherFrames<0.5) = -1;
+%     otherFrames(otherFrames>0.5) = 1;
+%     for i=1:L
+%         for k=2:frames
+%             Phi(i,:,k) = Phi(i,:,1).*otherFrames(:,:,k);
+%         end
+%     end
     
-    Phi = sqrt(s)*Phi;
+    Phi = sqrt(s)*Phi; % 乘期望的归一化系数
     % 生成y=Phi*orig
     Phi = reshape(Phi,[L,N*frames]);
     y = Phi*orig(:)/sqrt(L);

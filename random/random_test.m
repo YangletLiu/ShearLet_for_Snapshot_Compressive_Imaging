@@ -1,23 +1,26 @@
-%%
+%% 主文件
 clear ;
 close all;
 home;
 
 bFig = true;
-bParfor = false;
-bRandom = false;
+bTest = false;
 %% DATASET
-load("kobe32_cacti.mat") % orig,meas,mask
-test_data = 1;
+load("kobe32_cacti.mat") % orig,meas,mask（原始图像，压缩图像，压缩时用的mask
+test_data = 1; % meas帧数
 
-%% Verify Lemma 2
-% test = orig(:,:,1:8);
-% testf = fft2(test);
-% testm = max(testf(:)); % L_inf
-% tests = sum(sum(sum(test.*conj(test)))); % L2
-% testr = testm/tests;
-% lemmar = 11/(32*sqrt(2)); % log2048/(sqrt(2048))
-% M =0.25;
+% 图像某块的位置，n为块的大小
+x_1 = 1;
+x_2 = 128;
+y_1 = 1;
+y_2 = 128;
+n = 128;
+
+x_1 = 65;
+x_2 = 128;
+y_1 = 65;
+y_2 = 128;
+n = 64;
 
 x_1 = 81;
 x_2 = 96;
@@ -31,19 +34,8 @@ y_1 = 97;
 y_2 = 128;
 n = 32;
 
-x_1 = 1;
-x_2 = 128;
-y_1 = 1;
-y_2 = 128;
-n = 128;
-
-x_1 = 65;
-x_2 = 128;
-y_1 = 65;
-y_2 = 128;
-n = 64;
-
-codedNum = 1;
+codedNum = 1; % 多少帧压缩成一帧，对kobe正常是8
+% 测试使用的投影结果y，是用投影矩阵直接对原始图像进行投影得到的
 for k = test_data
 %% DATA PROCESS
     if exist('orig','var')
@@ -57,29 +49,22 @@ for k = test_data
         x       = zeros(size(mask));
     end
     if ~bOrig
-        bRandom = false;
+        bTest = false;
     end
     M = mask(x_1:x_2,y_1:y_2,1:codedNum);
     captured = meas(x_1:x_2,y_1:y_2,k);
-    L       = 2e4; % 投影数增大
-    s       = 2; % s越小越稠密
-    niter   = 10; 
+    L       = 1e4; % 投影数越大，恢复效果越好
+    s       = 2; % s越小，投影矩阵中的非零元素越多
+    niter   = 10; % 投影次数（之后取期望
 %% RUN
-    if bParfor
-      mycluster = parcluster('local');
-      delete(gcp('nocreate')); % delete current parpool
-      poolobj = parpool(mycluster,mycluster.NumWorkers);
-    end
     tic
-    x_rp	= random_projection(L,s,n,niter,M,captured,x);
-    %x_rp	= random_projection_without_optimization(L,s,n,niter,M,captured,x,bParfor,bRandom);
+    % x_rp	= random_projection(L,s,n,niter,M,captured,x); % 优化了内存问题，都是计算得慢
+    x_rp	= random_projection_without_optimization(L,s,n,niter,M,captured,x,bTest);
     time = toc;
-    if bParfor
-        delete(poolobj);
-    end
     % x_rp = TV_denoising(x_rp/255,0.05,10)*255;
+%% 将图片归一
     nor         = 255;
-    ratio  = max(max(x))/nor;
+    ratio  = max(max(x))/nor; % 原图中该块相对255的系数
     min_rp = min(min(x_rp));
     max_rp = max(max(x_rp));
     nor_rp = max_rp-min_rp;
@@ -102,7 +87,7 @@ for k = test_data
             imagesc(x_rp(:,:,i));  	
             set(gca,'xtick',[],'ytick',[]); 
 
-            psnr_x_rp(i) = psnr(x_rp(:,:,i), x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
+            psnr_x_rp(i) = psnr(x_rp(:,:,i), x(:,:,i)./nor);
             ssim_x_rp(i) = ssim(x_rp(:,:,i), x(:,:,i)./nor);
             title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_rp(i), '%.4f')], ['SSIM : ' num2str(ssim_x_rp(i), '%.4f')]});
         else 
@@ -116,7 +101,8 @@ for k = test_data
     psnr_rp = mean(psnr_x_rp);
     ssim_rp = mean(ssim_x_rp);
 end
- 
+
+% 直接观测投影出的矩阵之间的差距
 % [Phi,y] = generate_without_optimization(100,256,8,2,mask,captured,x);
 % Phi = reshape(Phi,[100,256*8]);
 % y_ = Phi*x(:)/sqrt(100); % y和y_不同

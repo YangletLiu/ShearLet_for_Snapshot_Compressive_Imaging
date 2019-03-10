@@ -1,3 +1,4 @@
+% 利用SCI的mask生成投影矩阵和对应的y。经过内存优化的版本，只求某一行
 function [phi,y] = generate(N,frames,s,mask,captured)
     % mask n×n×8 (对角化后为8N×8N)
     % captured n×n

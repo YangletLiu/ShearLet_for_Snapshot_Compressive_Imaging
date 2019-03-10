@@ -2,6 +2,7 @@
 % Phi = 0,  1-1/s
 %       -1, 1/2s
 
+% 内存优化的版本
 % 先对图像的局部进行测试
 function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
     [width, height, frames] = size(orig);
@@ -30,16 +31,16 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
         disp(ite)
         % 拆开对k个二维图片分别操作
         for i = 1:L
-            [phi,y(i)] = generate(N,frames,s,mask,captured);
+            [phi,y(i)] = generate(N,frames,s,mask,captured); % 生成投影矩阵的行向量
             for j =1:N
                 for k = 1:frames
                     p = ceil(j/n);
                     q = mod(j-1,n)+1;
-                    psi = kronv(dft(p,:),dft(q,:));
+                    psi = kronv(dft(p,:),dft(q,:)); % 将Kronecker积各行结果独立处理
                     x(i,j,k) = phi(:,:,k)*psi;
                 end
             end
-            y(i) = phi(:).'*orig(:);
+            y(i) = phi(:).'*orig(:); % 直接求投影，用于测试。应该是上面generate求出来的y(i)
         end
         
         for k = 1:frames
