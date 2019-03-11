@@ -58,7 +58,7 @@ for k = test_data
     niter   = 10; % 投影次数（之后取期望
 %% RUN
     tic
-    % x_rp	= random_projection(L,s,n,niter,M,captured,x); % 优化了内存问题，都是计算得慢
+    % x_rp	= random_projection(L,s,n,niter,M,captured,x); % 优化了内存问题，但是计算得慢
     x_rp	= random_projection_without_optimization(L,s,n,niter,M,captured,x,bTest);
     time = toc;
     % x_rp = TV_denoising(x_rp/255,0.05,10)*255;
