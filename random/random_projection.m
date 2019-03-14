@@ -22,7 +22,6 @@ function rec  = random_projection(L,s,n,iteration,mask,captured,orig)
             dft(i,j) = w^((i-1)*(j-1));
         end
     end
-    % psi = kron(dft,dft);
     theta = zeros(N*frames,1);
     y = zeros(L,1);
     x = zeros(L,N,frames);
