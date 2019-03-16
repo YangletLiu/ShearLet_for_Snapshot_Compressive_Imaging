@@ -7,3 +7,7 @@
 - `generate.m` 是优化后的生成SCI投影矩阵的方法。调用了`kronv.m` 仿照Kronecker积，计算两行相乘的结果，用于构造傅里叶变换域的基。
 - `generate_without_optimization.m`  是未经优化的生成SCI投影矩阵的方法。
 - `map2vec.m` 和`kronv.m` 都是工具函数。`map2vec.m` 用于将SCI的mask中被挑选出的tube映射到投影矩阵中。
+- `my_display.m` 和 `show.m` 用于作图。
+- `fourier_full.m` 生成一个$n^2\times n^2$ 大小完整的二维傅里叶变换的基矩阵。
+- `buildSCI.m` 根据SCI的mask矩阵随机构造一个投影矩阵 $\Phi$，并对应地获取投影后的$y$ 。
+- `estimate_product` 求取投影后的向量的内积作为频域上系数的估计。
