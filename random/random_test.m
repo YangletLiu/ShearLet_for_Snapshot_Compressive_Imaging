@@ -34,13 +34,14 @@ y_1 = 97;
 y_2 = 128;
 n = 32;
 
+from_which = 3;
 codedNum = 1; % 多少帧压缩成一帧，对kobe正常是8
 % 测试使用的投影结果y，是用投影矩阵直接对原始图像进行投影得到的
 for k = test_data
 %% DATA PROCESS
     if exist('orig','var')
         bOrig   = true;
-        x       = orig(x_1:x_2,y_1:y_2,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
+        x       = orig(x_1:x_2,y_1:y_2,(k-1)*codedNum+1+from_which:(k-1)*codedNum+codedNum+from_which);
         if max(x(:))<=1
             x       = x * 255;
         end
