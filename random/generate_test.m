@@ -37,6 +37,16 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     y = Phi*orig(:)/sqrt(L);
     Phi = reshape(Phi,[L,N,frames]);
     
-    expectation = mean(Phi(:)) % 期望 0
+%     Phi(:,:,1) = [1,2,3;4,5,6] % reshape用的没问题
+%     Phi(:,:,2) = [7,8,9;10,11,12]
+%     Phi_ = reshape(Phi,[2,6])
+%     Phi__ = reshape(Phi_,[2,3,2])
+    
+    expectation = mean(Phi(:)) % 期望 0 
     variance = sum(Phi(:).*Phi(:))/(L*N*frames) % 方差 1
+
+    % 会有一个问题，在计算投影后的内积theta的时候，
+    % 因为fft变换的psi矩阵第一行/列全是1，而这里的投影矩阵每一行的期望都为0
+    % 会导致theta的第一项恒定为0，那么逆变换后恢复出的图片会有系数问题。可以通过不让一行的期望为0
+    % SCI中不会有这个问题，因为有一定误差，投影矩阵的期望不是完全为0
 end

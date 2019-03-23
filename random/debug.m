@@ -4,7 +4,6 @@ close all;
 home;
 
 bFig = true;
-bTest = true;
 %% Initialize
 load("kobe32_cacti.mat") % orig,meas,mask（原始图像，压缩图像，压缩时用的mask
 test_data = 1; % meas帧数
@@ -34,8 +33,8 @@ y_1 = 97;
 y_2 = 112;
 n = 16;
 
-from_which = 3;
-codedNum = 1; % 多少帧压缩成一帧，对kobe正常是8
+from_which = 0;
+codedNum = 2; % 多少帧压缩成一帧，对kobe正常是8
 % 测试使用的投影结果y，是用投影矩阵直接对原始图像进行投影得到的
 for k = test_data
 %% DATA PROCESS
@@ -54,9 +53,10 @@ for k = test_data
     end
     M = mask(x_1:x_2,y_1:y_2,1:codedNum);
     captured = meas(x_1:x_2,y_1:y_2,k);
-    L       = 1e4; % 投影数越大，恢复效果越好
+    L       = 30000; % 投影数越大，恢复效果越好
     s       = 2; % s越小，投影矩阵中的非零元素越多
-    niter   = 30; % 投影次数（之后取期望
+    niter   = 1; % 投影次数（之后取期望
+    bTest = false;
 %% Debug
     % estimate
     N = n*n;
@@ -73,15 +73,19 @@ for k = test_data
         end
         estimated_theta = estimate_product(L,N,codedNum,Phi,psi,estimated_theta,y); % 做内积求取期望累加上去
     end
+    % real
+    real_theta = fft2(x);
+    real_x = ifft2(real_theta); % x
+    % estimated
     estimated_theta = estimated_theta/niter; 
-    estimated_theta = reshape(estimated_theta,size(x));
+    estimated_theta = reshape(estimated_theta,size(x)); % 第一个位置(1,1)处严重偏离，其他接近；纠正后时域上接近了
+    % estimated_theta(1,1,:) = real_theta(1,1,:); % 在random下需要矫正这个偏移
     estimated_x = real(ifft2(estimated_theta));
     % apply fft2 using psi
     x_ = reshape(x,n*n,codedNum);
     psi_theta = psi*x_;
     psi_theta = reshape(psi_theta,size(x)); % the same as real_theta√
     psi_x = real(ifft2(psi_theta)); % the same as real_x√
-    % real
-    real_theta = fft2(x);
-    real_x = ifft2(real_theta); % x
+    
+    my_display(x,estimated_x,codedNum,bOrig);
 end

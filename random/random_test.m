@@ -4,7 +4,7 @@ close all;
 home;
 
 bFig = true;
-bTest = false;
+bTest = true;
 %% Initialize
 load("kobe32_cacti.mat") % orig,meas,mask（原始图像，压缩图像，压缩时用的mask
 test_data = 1; % meas帧数
@@ -34,8 +34,8 @@ y_1 = 97;
 y_2 = 128;
 n = 32;
 
-from_which = 3;
-codedNum = 1; % 多少帧压缩成一帧，对kobe正常是8
+from_which = 0;
+codedNum = 2; % 多少帧压缩成一帧，对kobe正常是8
 % 测试使用的投影结果y，是用投影矩阵直接对原始图像进行投影得到的
 for k = test_data
 %% DATA PROCESS
