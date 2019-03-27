@@ -22,14 +22,14 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     end
     
     % 仿照SCI
-%     otherFrames = rand([1,N,frames]);
-%     otherFrames(otherFrames<0.5) = -1;
-%     otherFrames(otherFrames>0.5) = 1;
-%     for i=1:L
-%         for k=2:frames
-%             Phi(i,:,k) = Phi(i,:,1).*otherFrames(:,:,k);
-%         end
-%     end
+    otherFrames = rand([1,N,frames]);
+    otherFrames(otherFrames<0.5) = -1;
+    otherFrames(otherFrames>0.5) = 1;
+    for i=1:L
+        for k=2:frames
+            Phi(i,:,k) = Phi(i,:,1).*otherFrames(:,:,k);
+        end
+    end
     
     Phi = sqrt(s)*Phi; % 乘期望的归一化系数
     % 生成y=Phi*orig
