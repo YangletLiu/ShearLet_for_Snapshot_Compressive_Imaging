@@ -21,6 +21,8 @@ function rec  = random_projection_without_optimization(L,s,n,iteration,mask,capt
         theta = estimate_product(L,N,frames,Phi,psi,theta,y); % 做内积求取期望累加上去
     end
     theta = theta/iteration; 
+    for f = 1:frames
+        theta((f-1)*N+1:f*N) = real(ifft(theta((f-1)*N+1:f*N)));
+    end
     rec = reshape(theta,[width, height, frames]); % 频域系数
-    rec = real(ifft2(rec));
 end
