@@ -54,9 +54,9 @@ for k = test_data
     end
     M = mask(x_1:x_2,y_1:y_2,1:codedNum);
     captured = meas(x_1:x_2,y_1:y_2,k);
-    L       = 1e3; % 投影数越大，恢复效果越好
+    L       = 1e4; % 投影数越大，恢复效果越好
     s       = 2; % s越小，投影矩阵中的非零元素越多
-    niter   = 3; % 投影次数（之后取期望
+    niter   = 10; % 投影次数（之后取期望
 %% RUN
     tic
     % x_rp	= random_projection(L,s,n,niter,M,captured,x); % 优化了内存问题，但是计算得慢
