@@ -68,9 +68,7 @@ for ite =1:L2
     Phi(positive) = 1;
     Phi(negtive) = -1;
     for i=1:L1
-        for k=2:f
-            Phi(i,(k-1)*N+1:k*N) = Phi(i,1:N).*M((k-1)*N+1:k*N)';
-        end
+        Phi(i,N+1:2*N) = Phi(i,1:N).*f12';
     end
     
     means = mean(Phi(:)) % ¾ùÖµ
