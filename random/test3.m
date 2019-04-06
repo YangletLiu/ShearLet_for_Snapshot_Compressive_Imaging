@@ -17,7 +17,7 @@ meas = sum(orig.*mask,3);
 %% 取出一小块初始化
 f = 2;
 n = 16;
-x = orig(1:n,1:n,1:f);
+x = orig(1:n,1:n,1:f);              % 可以取32×256的
 M = mask(1:n,1:n,1:f);
 captured = meas(1:n,1:n,1);
 x = x(:);
@@ -38,11 +38,16 @@ end
 
 %(dft*x-fft(x)) %验证dft做对了
 
-L2 = 100; 
+L2 = 10; 
+
+otherFrames = rand([1,N,f]);
+f1 = M(1:256);
+f2 = M(257:512);
+f12 = f1.*f2;
 
 estimated_theta = zeros(1,cal_num);
 for ite =1:L2
-    L1 = 10;
+    L1 = 1e4;
     Phi = zeros(L1,NN);
     y = zeros(L1,1);
     for j=1:L1
@@ -53,13 +58,21 @@ for ite =1:L2
         Phi(j,:) = Phi(j,:) + extract_M(ps,N,M,f);
         Phi(j,:) = Phi(j,:) - extract_M(ns,N,M,f);
     end
-    
-%     order = randperm(N*f*L1); % 完全随机
+       
+%     order = randperm(N*f*L1);
 %     nonzero_num = N*f*L1;
-%     positive = order(1:nonzero_num/2);
-%     negtive = order(nonzero_num/2+1:nonzero_num);
+%     positive = order(1:nonzero_num/40*21);
+%     negtive = order(nonzero_num/40*21+1:nonzero_num);
 %     Phi(positive) = 1;
-%     Phi(negtive) = -1; 
+%     Phi(negtive) = -1;
+%     
+%     otherFrames(otherFrames<0.5) = -1;
+%     otherFrames(otherFrames>0.5) = 1;
+%     for i=1:L1
+%         for k=2:f
+%             Phi(i,(k-1)*N+1:k*N) = Phi(i,1:N).*otherFrames(:,:,k);
+%         end
+%     end
     
     means = mean(Phi(:)) % 均值
     var = sum((Phi(:)-means).*(Phi(:)-means))/(L1*N*f) % 方差
@@ -67,13 +80,19 @@ for ite =1:L2
     u = Phi*x;
     v = Phi*dft; % 对称，行列一样
     
-    estimated_theta = estimated_theta + (u'*v)/L1;
+    bias = 0;
+    for j=1:256
+        bias = bias + f12(j)*u(j)*v(j+256,:)+f12(j)*u(j+256)*v(j,:);   
+    end
+    
+    estimated_theta = estimated_theta + (u'*v-bias)/L1;
 end
 
 estimated_theta = estimated_theta/L2;
 
 real_theta = fft(x);
 estimated_theta = estimated_theta.';
+error = norm(estimated_theta-real_theta);
 
 estimated_x = real(ifft(estimated_theta));
 estimated_x = reshape(estimated_x,[n,n,f]);

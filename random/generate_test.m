@@ -1,5 +1,5 @@
 % 完全随机生成投影矩阵
-function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
+function [Phi,y] = generate_test(L,N,frames,s,orig,bRow,otherFrames)
     Phi = zeros(L,N,frames);  
     if bRow % 按行生成，每行的1或-1数目相同
         for k = 1:frames
@@ -22,7 +22,6 @@ function [Phi,y] = generate_test(L,N,frames,s,orig,bRow)
     end
     
     % 仿照SCI
-    otherFrames = rand([1,N,frames]);
     otherFrames(otherFrames<0.5) = -1;
     otherFrames(otherFrames>0.5) = 1;
     for i=1:L

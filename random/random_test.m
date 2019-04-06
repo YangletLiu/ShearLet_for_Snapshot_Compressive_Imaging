@@ -35,7 +35,7 @@ n = 16;
 % n = 32;
 
 from_which = 0;
-codedNum = 2; % 多少帧压缩成一帧，对kobe正常是8
+codedNum = 1; % 多少帧压缩成一帧，对kobe正常是8
 % 测试使用的投影结果y，是用投影矩阵直接对原始图像进行投影得到的
 for k = test_data
 %% DATA PROCESS
