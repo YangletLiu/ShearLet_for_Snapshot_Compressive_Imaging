@@ -84,7 +84,7 @@ for ite =1:L2
         for j=1:256
             bias = bias + f12(j)*x(j)*dft(j+256,:)+f12(j)*x(j+256)*dft(j,:);   
         end
-        estimated_theta = estimated_theta + bias;
+        estimated_theta = estimated_theta + bias/L1;
     end
     
 end
