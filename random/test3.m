@@ -38,15 +38,14 @@ end
 
 %(dft*x-fft(x)) %验证dft做对了
 
-L2 = 10; 
+L2 = 30; 
 
 if f==2
-    f1 = M(1:256);
+    f1 = M(1:256); 
     f2 = M(257:512);
-    f12 = f1.*f2;
+    f12 = f1.*f2; % 根据第一帧和第二帧的mask计算相关系数
 end
-% estimated_thetaz至少前百分之十的系数需要估计准确（最后的高频信息不重要），
-% 同时第一个系数是平均值，不准确也可以，恢复出的图像只是有一个比例的误差
+% estimated_thetaz第一个系数是平均值，不准确也可以，恢复出的图像只是有一个比例的误差
 estimated_theta = zeros(1,cal_num);
 for ite =1:L2
     L1 = 1e4;
@@ -82,9 +81,9 @@ for ite =1:L2
     if f==2
         bias = 0;
         for j=1:256
-            bias = bias + f12(j)*x(j)*dft(j+256,:)+f12(j)*x(j+256)*dft(j,:);   
+            bias = bias + f12(j)*x(j)*dft(j+256,:)+f12(j)*x(j+256)*dft(j,:);   % 由相关性造成的误差
         end
-        estimated_theta = estimated_theta + bias/L1;
+        estimated_theta = estimated_theta - bias;
     end
     
 end
