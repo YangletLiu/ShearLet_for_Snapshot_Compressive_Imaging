@@ -1,7 +1,7 @@
 clear all;
 load("kobe32_cacti.mat")
 
-%% 造mask       
+%% 分块构造mask，消除振动方向上的相关性       
 mask_ = zeros(512,256);
 order = randperm(512*256); 
 mask_(order(1:256*256)) = 1;
@@ -17,7 +17,7 @@ meas = sum(orig.*mask,3);
 %% 取出一小块初始化
 f = 2;
 n = 16;
-x = orig(1:n,1:n,1:f);              % 可以取32×256的
+x = orig(1:n,1:n,1:f);              
 M = mask(1:n,1:n,1:f);
 captured = meas(1:n,1:n,1);
 x = x(:);
@@ -45,12 +45,15 @@ if f==2
     f2 = M(257:512);
     f12 = f1.*f2; % 根据第一帧和第二帧的mask计算相关系数
 end
+
+%% 计算随机投影矩阵和投影
 % estimated_thetaz第一个系数是平均值，不准确也可以，恢复出的图像只是有一个比例的误差
 estimated_theta = zeros(1,cal_num);
 for ite =1:L2
     L1 = 1e4;
     Phi = zeros(L1,NN);
     
+% 直接由mask构造投影矩阵
 %     for j=1:L1
 %         order = randperm(N); 
 %         % 这里取正负是考虑到由mask中的元素确定的正负是确定的，否则L行中某列上只要非零就都相同
@@ -60,7 +63,7 @@ for ite =1:L2
 %         Phi(j,:) = Phi(j,:) - extract_M(ns,N,M,f);
 %     end
        
-    % 另一个写法
+    % 考虑偏差时，构造两帧的写法（构造多帧需要额外计算fij，表示i帧与j帧对应的mask间的关系
     order = randperm(NN*L1);
     positive = order(1:NN*L1/40*21);
     negtive = order(NN*L1/40*21+1:NN*L1);
@@ -76,7 +79,7 @@ for ite =1:L2
     u = Phi*x;
     v = Phi*dft; % 对称，行列一样
     
-    estimated_theta = estimated_theta + (u'*v)/L1;
+    estimated_theta = estimated_theta + (u'*v)/L1; 
     
     if f==2
         bias = 0;
@@ -89,6 +92,7 @@ for ite =1:L2
 end
 estimated_theta = estimated_theta/L2;
 
+%% 后续观察
 real_theta = fft(x);
 estimated_theta = estimated_theta.';
 error = norm(estimated_theta-real_theta);
@@ -96,6 +100,7 @@ error = norm(estimated_theta-real_theta);
 estimated_x = real(ifft(estimated_theta));
 my_display(reshape(x,[n,n,f]),reshape(estimated_x,[n,n,f]),f,true)
 
+%% 提取mask中的对应位置
 function vec = extract_M(idx,N,M,f)
     vec = zeros(1,N*f);
     for ite =1:f
