@@ -1,21 +1,14 @@
 clear all;
 load("kobe32_cacti.mat")
 
-%% 分块构造mask，消除振动方向上的相关性       
-mask_ = zeros(512,256);
-order = randperm(512*256); 
-mask_(order(1:256*256)) = 1;
-frames = 8;
-mask = zeros(256,256,frames);
-for ite =1:frames
-    mask(:,:,ite) = mask_((ite-1)*32+1:ite*32+224,:); % 设定32行无重叠
-end
+%% 定理一
+mask = normrnd(0,1,size(mask));      
 % 采样
 orig = orig(:,:,1:8);
 meas = sum(orig.*mask,3);
 
 %% 取出一小块初始化
-f = 2;
+f = 1;
 n = 16;
 x = orig(1:n,1:n,1:f);              
 M = mask(1:n,1:n,1:f);
@@ -23,7 +16,6 @@ captured = meas(1:n,1:n,1);
 x = x(:);
 M = M(:);
 captured = captured(:);
-M(M==0)=-1;
 
 N = n*n;
 NN = N*f;
@@ -40,12 +32,6 @@ end
 
 L2 = 30; 
 
-if f==2
-    f1 = M(1:256); 
-    f2 = M(257:512);
-    f12 = f1.*f2; % 根据第一帧和第二帧的mask计算相关系数
-end
-
 %% 计算随机投影矩阵和投影
 % estimated_thetaz第一个系数是平均值，不准确也可以，恢复出的图像只是有一个比例的误差
 estimated_theta = zeros(1,cal_num);
@@ -53,24 +39,13 @@ for ite =1:L2
     L1 = 1e4;
     Phi = zeros(L1,NN);
     
-% 直接由mask构造投影矩阵
-%     for j=1:L1
-%         order = randperm(N); 
-%         % 这里取正负是考虑到由mask中的元素确定的正负是确定的，否则L行中某列上只要非零就都相同
-%         ps = order(1:N/2);
-%         ns = order(1+N/2:N);
-%         Phi(j,:) = Phi(j,:) + extract_M(ps,N,M,f);
-%         Phi(j,:) = Phi(j,:) - extract_M(ns,N,M,f);
-%     end
-       
-    % 考虑偏差时，构造两帧的写法（构造多帧需要额外计算fij，表示i帧与j帧对应的mask间的关系
-    order = randperm(NN*L1);
-    positive = order(1:NN*L1/2); % 1/2概率正负，没有零项不用乘公式里的sqrt(s)
-    negtive = order(NN*L1/2+1:NN*L1);
-    Phi(positive) = 1;
-    Phi(negtive) = -1;
-    for i=1:L1
-        Phi(i,N+1:2*N) = Phi(i,1:N).*f12';
+    for j=1:L1
+        order = randperm(N); 
+        % 这里取正负是考虑到由mask中的元素确定的正负是确定的
+        ps = order(1:N/2);
+        ns = order(1+N/2:N);
+        Phi(j,:) = Phi(j,:) + extract_M(ps,N,M,f);
+        Phi(j,:) = Phi(j,:) - extract_M(ns,N,M,f);
     end
     
     means = mean(Phi(:)) % 均值
@@ -80,15 +55,6 @@ for ite =1:L2
     v = Phi*dft; % 对称，行列一样
     
     estimated_theta = estimated_theta + (u'*v)/L1; 
-    
-    if f==2
-        bias = 0;
-        for j=1:256
-            bias = bias + f12(j)*x(j)*dft(j+256,:)+f12(j)*x(j+256)*dft(j,:);   % 由相关性造成的误差
-        end
-        estimated_theta = estimated_theta - bias;
-    end
-    
 end
 estimated_theta = estimated_theta/L2;
 
