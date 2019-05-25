@@ -20,14 +20,21 @@ test_data = 1;
 
 for k = test_data
 %% DATA PROCESS
-    x       = orig(:,:,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
+    testn = 128;
+    x       = orig(1:testn,1:testn,(k-1)*codedNum+1:(k-1)*codedNum+codedNum);
+    orig = orig(1:testn,1:testn,:);
+    mask = mask(1:testn,1:testn,:);
+    meas = meas(1:testn,1:testn,:);
     if max(x(:))<=1
         x       = x * 255;
     end
-    gamma = 0.005;
+    gamma = 1e-1;
     bFig = true;
-    w = 1e2;
-    niter   = 200; 
+    w = @(ite,iteration) 60*(1-ite/iteration)^10;% 多项式插值递减w, 28.0164 on average
+    % w = @(ite,iteration) 60*(1-ite/iteration);  
+    % 线性插值递减w时，发现最后的阶段其实loss下降得很快，改用多项式插值（且阶数越高，收敛得越快）
+    % w = [60,30,20,12,8,5,2]; % 同时采用等间距取值，27.55 on average in 400 iteration
+    niter   = 300; 
     [n1,n2,n3] = size(x);                    
     A = [];     
     for i=1:n3

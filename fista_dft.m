@@ -52,12 +52,12 @@ for k = test_data
     if bGPU 
         M = gpuArray(single(M));
     end
-    bShear = true;
+    bShear = false;
     bFig = true;
     sigma = 1;
     LAMBDA  = 12;  
     L       = 10;
-    niter   = 200; 
+    niter   = 400; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
