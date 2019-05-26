@@ -37,6 +37,7 @@ for i = 1:iteration
     X = myifft(X_hat + (t1-1)/t2*(X_hat-X_hat_old));
     X = projection(X);
     if bShear
+        % X = shealetShrinkage(X,sigma(i,iteration),shearletSystem,false,bReal);
         X = shealetShrinkage(X,sigma,shearletSystem,false,bReal);
     end
     % X = tvdenoise(X,1,3); 
