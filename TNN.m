@@ -25,7 +25,7 @@ if bShear
 end
 for i = 1:iteration
 %% Fista+TNN
-    X_hat = myfft(X)-gamma*myfft(reshape(A'*(A*X(:)-b),sX)); % gamma should be 0.1
+    X_hat = mydct(X)-gamma*mydct(reshape(A'*(A*X(:)-b),sX)); % gamma should be 0.1
     for j = 1:sX(3)
         [U,S,V] = svd(X_hat(:,:,j));
         S = wnnm(S,sqrt(2),w(i,iteration)); % wnnm ²åÖµ
@@ -34,7 +34,7 @@ for i = 1:iteration
         X_hat(:,:,j) = U*S*V';
     end
     t2 = (1+sqrt(1+4*t1^2))/2;
-    X = myifft(X_hat + (t1-1)/t2*(X_hat-X_hat_old));
+    X = myidct(X_hat + (t1-1)/t2*(X_hat-X_hat_old));
     X = projection(X);
     if bShear
         % X = shealetShrinkage(X,sigma(i,iteration),shearletSystem,false,bReal);
@@ -79,6 +79,24 @@ for i = 1:iteration
 end
 end
 
+function output=mydct(input)
+    output = zeros(size(input));
+    for i =1:size(input,1)
+        for j=1:size(input,2)
+            output(i,j,:) = fft(input(i,j,:));
+        end
+    end 
+end
+
+function output=myidct(input)
+    output = zeros(size(input));
+    for i =1:size(input,1)
+        for j=1:size(input,2)
+            output(i,j,:) = idct(input(i,j,:));
+        end
+    end 
+end
+
 function output=myfft(input)
     output = zeros(size(input));
     for i =1:size(input,1)
@@ -87,6 +105,7 @@ function output=myfft(input)
         end
     end 
 end
+
 
 function output=myifft(input)
     output = zeros(size(input));
