@@ -27,11 +27,8 @@ for i = 1:iteration
 %% Fista+TNN
     X_hat = mydct(X)-gamma*mydct(reshape(A'*(A*X(:)-b),sX)); % gamma should be 0.1
     for j = 1:sX(3)
-        [U,S,V] = svd(X_hat(:,:,j));
-        S = wnnm(S,sqrt(2),w(i,iteration)); % wnnm 插值
+        X_hat(:,:,j) = wnnm(X_hat(:,:,j),sqrt(2),w(i,iteration)); % wnnm 插值
         % S = wnnm(S,sqrt(2),w(ceil(i/(iteration/length(w))))); % wnnm 等间距设置w
-        % S = max(S-w(ceil(i/(iteration/length(w)))),0); % nnm
-        X_hat(:,:,j) = U*S*V';
     end
     t2 = (1+sqrt(1+4*t1^2))/2;
     X = myidct(X_hat + (t1-1)/t2*(X_hat-X_hat_old));
@@ -83,7 +80,7 @@ function output=mydct(input)
     output = zeros(size(input));
     for i =1:size(input,1)
         for j=1:size(input,2)
-            output(i,j,:) = fft(input(i,j,:));
+            output(i,j,:) = dct(input(i,j,:));
         end
     end 
 end
