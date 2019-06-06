@@ -31,14 +31,14 @@ for k = test_data
     gamma = 1e-1;
     % sigma = @(ite,iteration) (max(0,8*(0.6-ite/iteration)^3)+2);
     sigma = 1.2;
-    bReal = false;
+    bReal = false; % real images or experiments
     bShear = true;
     bFig = true;
-    w = @(ite,iteration) 50*(1-ite/iteration)^10;% 多项式插值递减w, 28 on average
+    w = @(ite,iteration) 100*(1-ite/iteration)^10;% 多项式插值递减w, 28 on average
     % w = @(ite,iteration) 60*(1-ite/iteration);  
     % 线性插值递减w时，发现最后的阶段其实loss下降得很快，改用多项式插值（且阶数越高，收敛得越快）
     % w = [60,30,20,12,8,5,2]; % 同时采用等间距取值，27.55 on average in 400 iteration
-    niter   = 400; 
+    niter   = 300; 
     [n1,n2,n3] = size(x);                    
     A = [];     
     for i=1:n3
