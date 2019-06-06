@@ -19,13 +19,13 @@ if bShear
 end
 for i = 1:iteration
 %% Fista+TNN
-    X_hat = mysrlt(X)-gamma*mysrlt(reshape(A'*(A*X(:)-b),sX)); % gamma should be 0.1
+    X_hat = mydct(X)-gamma*mydct(reshape(A'*(A*X(:)-b),sX)); % gamma should be 0.1
     for j = 1:size(X_hat,3)
         X_hat(:,:,j) = wnnm(X_hat(:,:,j),sqrt(2),w(i,iteration)); % wnnm 插值
         % S = wnnm(S,sqrt(2),w(ceil(i/(iteration/length(w))))); % wnnm 等间距设置w
     end
     t2 = (1+sqrt(1+4*t1^2))/2;
-    X = myisrlt(X_hat + (t1-1)/t2*(X_hat-X_hat_old));
+    X = myidct(X_hat + (t1-1)/t2*(X_hat-X_hat_old));
     X = projection(X);
     if bShear
         % X = shealetShrinkage(X,sigma(i,iteration),shearletSystem,false,bReal);
@@ -53,26 +53,6 @@ for i = 1:iteration
     end
     
 end
-end
-
-function output=mysrlt(input)
-    output = zeros([256,256,56]);
-    shearletSystem = SLgetShearletSystem2D(false,8,1,1);
-    for i =1:size(input,1)
-        for j=1:size(input,2)
-            output(i,j,:) = reshape(SLsheardec2D(squeeze(input(i,j,:)),shearletSystem),[1,1,56]);
-        end
-    end 
-end
-
-function output=myisrlt(input)
-    output = zeros([256,256,8]);
-    shearletSystem = SLgetShearletSystem2D(false,8,1,1);
-    for i =1:size(input,1)
-        for j=1:size(input,2)
-            output(i,j,:) = reshape(SLshearrec2D(squeeze(input(i,j,:)),shearletSystem),[1,1,8]);
-        end
-    end 
 end
 
 function output=mydct(input)
