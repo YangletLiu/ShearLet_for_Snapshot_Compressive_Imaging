@@ -13,27 +13,11 @@ home;
 
 bGPU = false;
 bReal = false;
-%% DATASET
-% load("6fan14_cacti.mat") % meas,mask % 1/2e5/0.03
-% codedNum = 14;
-% test_data = 1;
-% bReal = true;
-% sigma = 0.03;
-% LAMBDA  = 0.5;  
-% L       = 2e5;
-
-% load("traffic8_cacti.mat") % orig,meas,mask
-% codedNum = 8;
-% test_data = 1;
-% 
-load("kobe32_cacti.mat") % orig,meas,mask
-codedNum = 8;
+load("toy31_cassi.mat") % orig,meas,mask
+codedNum = 31;
+% load("bird24_cassi.mat") % orig,meas,mask
+% codedNum = 24;
 test_data = 1;
-% 
-% load("4park8_cacti.mat") % orig,meas,mask
-% codedNum = 8;
-% test_data = 1;
-% clear orig
 
 for k = test_data
 %% DATA PROCESS
@@ -54,10 +38,10 @@ for k = test_data
     end
     bShear = true;
     bFig = true;
-    sigma = 1;
-    LAMBDA  = 12;  
-    L       = 10;
-    niter   = 400; 
+    sigma = 0.5;
+    LAMBDA  = 10;  
+    L       = 20;
+    niter   = 200; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 

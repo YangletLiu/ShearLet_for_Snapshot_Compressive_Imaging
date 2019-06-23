@@ -11,7 +11,6 @@ clear ;
 close all;
 home;
 
-bReal = false;
 %% DATASET
 load("kobe32_cacti.mat") % orig,meas,mask
 codedNum = 8;
@@ -29,10 +28,6 @@ for k = test_data
         x       = x * 255;
     end
     gamma = 1e-1;
-    % sigma = @(ite,iteration) (max(0,8*(0.6-ite/iteration)^3)+2);
-    sigma = 1.2;
-    bReal = false; % real images or experiments
-    bShear = true;
     bFig = true;
     w = @(ite,iteration) 100*(1-ite/iteration)^10;% 多项式插值递减w, 28 on average
     % w = @(ite,iteration) 60*(1-ite/iteration);  
@@ -55,7 +50,7 @@ for k = test_data
 
 %% RUN
     tic
-    x_ista	= TNN(A, [n1,n2,n3], y, gamma, w, sigma, niter, COST, bFig, bShear, bReal);
+    x_ista	= TNN(A, [n1,n2,n3], y, gamma, w, niter, COST, bFig);
     time = toc;
     %x_ista = TV_denoising(x_ista/255,0.05,10)*255;
     nor         = max(x(:));

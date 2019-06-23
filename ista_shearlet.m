@@ -10,9 +10,9 @@ maskFrames = size(mask,3);
 [height, width, frames] = size(orig);
 N = height*width;
 M = mask;
-x = orig(:,:,1:8); % n×n  no need to transform to N×1
+x = orig(:,:,1:frames); % n×n  no need to transform to N×1
 nor = max(x(:));
-y = sample(M,x,8); 
+y = sample(M,x,frames); 
 
 % we don't need to build Psi_r in real other than here for the constant L, 
 % we use math tricks to find another way to represent shearlet transform,
@@ -33,11 +33,11 @@ end
 L = 20;
 iteration = 400;
 lambda = 2e4;
-A = @(d) sample(M,ShearletHr(d,shearletSystem),8);
+A = @(d) sample(M,ShearletHr(d,shearletSystem),frames);
 % 不同于dft，dft的循环卷积矩阵共轭转置恰好是逆变换，这里还不是可以直接用逆变换
-AT = @(d) fft2withShift(ShearletHrT(sampleH(M,d,8,false),H_r)); 
+AT = @(d) fft2withShift(ShearletHrT(sampleH(M,d,frames,false),H_r)); 
 tic;
-x_ista = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig);
+x_ista = NNFISTA(iteration,frames,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig);
 time = toc;
 mse_x_ista = immse(x_ista./nor, x./nor);
 psnr_x_ista = psnr(x/nor,x_ista/nor);

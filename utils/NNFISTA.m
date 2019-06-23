@@ -1,4 +1,4 @@
-function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig)
+function x = NNFISTA(iteration,frames,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig)
     % the discarded f is the 2D-DFT block circulant matrix, we know that f^-1 = f^H = f', which means f^H can also be represented as ifft2 
     % I is the nShearlets of the number of shearlets
     % M is of size n¡Án, a mask matrix
@@ -8,10 +8,10 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig)
     % A and AT are functions perform linear transforms which are hard to be taken directly in the matrix format
     
     t1 = 1;
-%     s = zeros(size(y,1),size(y,2),8*I);
-%     x = zeros(size(y,1),size(y,2),8);
-    x = repmat(y,1,1,8);
-    for i=1:8
+%     s = zeros(size(y,1),size(y,2),frames*I);
+%     x = zeros(size(y,1),size(y,2),frames);
+    x = repmat(y,1,1,frames);
+    for i=1:frames
        s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem); %»»3D-shear£¿
     end
     S = fft2withShift(s);
@@ -32,20 +32,20 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig)
         s = ifft2withShift(S);
         
         if bDe
-            for i=1:8
+            for i=1:frames
                 x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
             end
             x = real(x);
             x = projection(x);
             x = TV_denoising(x/255,0.05,3)*255;
-            for i=1:8
+            for i=1:frames
                 s(:,:,(i-1)*I+1:(i-1)*I+I) = SLsheardec2D(x(:,:,i),shearletSystem);
             end
         end
         
         if bFig
             if ~bDe
-                for i=1:8
+                for i=1:frames
                     x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
                 end
                 x = real(x);
@@ -66,7 +66,7 @@ function x = NNFISTA(iteration,I,y,L,lambda,shearletSystem,A,AT,bDe,bFig)
             disp(k);
         end
     end
-    for i=1:8
+    for i=1:frames
         x(:,:,i) = SLshearrec2D(s(:,:,(i-1)*I+1:(i-1)*I+I),shearletSystem);
     end
     x = real(x);

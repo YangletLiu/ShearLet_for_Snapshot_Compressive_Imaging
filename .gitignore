@@ -1,3 +1,2 @@
-results/*.mat
-verify/*.mat
+*.mat
 *.asv

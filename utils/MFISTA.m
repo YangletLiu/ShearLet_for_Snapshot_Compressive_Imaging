@@ -32,12 +32,13 @@ if bFig
 end
 t1 = 1;
 X = X0;
+[w,h,~] = size(X0);
 
 if bShear
     if bReal
-        shearletSystem = SLgetShearletSystem2D(bGPU,256,256,4);
+        shearletSystem = SLgetShearletSystem2D(bGPU,w,h,4);
     else
-        shearletSystem = SLgetShearletSystem2D(bGPU,256,256,1);
+        shearletSystem = SLgetShearletSystem2D(bGPU,w,h,1);
     end
 end
 
