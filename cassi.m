@@ -13,10 +13,10 @@ home;
 
 bGPU = false;
 bReal = false;
-%load("toy31_cassi.mat") % orig,meas,mask
-% codedNum = 31;
-load("bird24_cassi.mat") % orig,meas,mask
-codedNum = 24;
+load("toy31_cassi.mat") % orig,meas,mask
+codedNum = 31;
+% load("bird24_cassi.mat") % orig,meas,mask
+% codedNum = 24;
 test_data = 1;
 
 for k = test_data
@@ -31,7 +31,6 @@ for k = test_data
         bOrig   = false;
         x       = zeros(size(mask));
     end
-    N       = 256;
     M = mask; 
     if bGPU 
         M = gpuArray(single(M));
@@ -65,6 +64,8 @@ for k = test_data
 %% RUN
     tic
     
+    COST.equation   = '1/2 * || A*X - Y ||_2^2 + lambda * || X ||_TNN';
+    COST.function	= @(X) 1/2 * L2(A*X - y) + nuclear(X);
     y = double(y(:));
     [n1,n2,n3] = size(x);  
     gamma = 1e-1;
