@@ -103,7 +103,7 @@ for k = test_data
             imagesc(x_ista(:,:,i));  	
             set(gca,'xtick',[],'ytick',[]); 
 
-            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
+            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); % 应该算平均值，这里暂留，已经在show中修改了
             ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
             title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
         else 

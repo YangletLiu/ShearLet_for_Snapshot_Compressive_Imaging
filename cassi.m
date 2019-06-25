@@ -13,10 +13,10 @@ home;
 
 bGPU = false;
 bReal = false;
-load("toy31_cassi.mat") % orig,meas,mask
-codedNum = 31;
-% load("bird24_cassi.mat") % orig,meas,mask
-% codedNum = 24;
+%load("toy31_cassi.mat") % orig,meas,mask
+% codedNum = 31;
+load("bird24_cassi.mat") % orig,meas,mask
+codedNum = 24;
 test_data = 1;
 
 for k = test_data
@@ -39,15 +39,16 @@ for k = test_data
     bShear = true;
     bFig = true;
     sigma = 0.5;
-    LAMBDA  = 10;  
-    L       = 20;
-    niter   = 200; 
+    LAMBDA  = 16;  
+    L       = 25;
+    niter   = 400; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
     %% INITIALIZATION
     if bOrig
         y       = sample(M,x,codedNum);
+        %y == meas
     else
         y       = meas(:,:,1);
     end
@@ -63,13 +64,26 @@ for k = test_data
 
 %% RUN
     tic
-    x_ista	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
-    time = toc;
-    x_ista = real(ifft2(x_ista));
-    if bGPU
-        x_ista = gather(x_ista);
+    
+    y = double(y(:));
+    [n1,n2,n3] = size(x);  
+    gamma = 1e-1;
+    w = @(ite,iteration) 100*(1-ite/iteration)^10;% 多项式插值递减w, 28 on average
+    A = [];     
+    for i=1:n3
+       S=diag(sparse(double(mask(n1*n2*(i-1)+1:n1*n2*i))));
+       A=[A,S];
     end
-    %x_ista = TV_denoising(x_ista/255,0.05,10)*255;
+    x_ista	= TNN(A, [n1,n2,n3], y, gamma, w, niter, COST, bFig);
+    
+%     x_ista	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
+%     time = toc;
+%     x_ista = real(ifft2(x_ista));
+%     if bGPU
+%         x_ista = gather(x_ista);
+%     end
+
+    % x_ista = TV_denoising(x_ista/255,0.05,10)*255; % 正式测试一定加，最后降噪一下提升很大
     nor         = max(x(:));
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);
@@ -87,7 +101,7 @@ for k = test_data
             imagesc(x_ista(:,:,i));  	
             set(gca,'xtick',[],'ytick',[]); 
 
-            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor); % 应该算平均值，这里暂留，已经在show中修改了
+            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); % 应该算平均值，这里暂留，已经在show中修改了
             ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
             title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
         else 
