@@ -63,28 +63,14 @@ for k = test_data
 
 %% RUN
     tic
-    
-    COST.equation   = '1/2 * || A*X - Y ||_2^2 + lambda * || X ||_TNN';
-    COST.function	= @(X) 1/2 * L2(A*X - y) + nuclear(X);
-    y = double(y(:));
-    [n1,n2,n3] = size(x);  
-    gamma = 1e-1;
-    w = @(ite,iteration) 100*(1-ite/iteration)^10;% 多项式插值递减w, 28 on average
-    A = [];     
-    for i=1:n3
-       S=diag(sparse(double(mask(n1*n2*(i-1)+1:n1*n2*i))));
-       A=[A,S];
+    x_ista	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
+    time = toc;
+    x_ista = real(ifft2(x_ista));
+    if bGPU
+        x_ista = gather(x_ista);
     end
-    x_ista	= TNN(A, [n1,n2,n3], y, gamma, w, niter, COST, bFig);
-    
-%     x_ista	= MFISTA(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
-%     time = toc;
-%     x_ista = real(ifft2(x_ista));
-%     if bGPU
-%         x_ista = gather(x_ista);
-%     end
 
-    % x_ista = TV_denoising(x_ista/255,0.05,10)*255; % 正式测试一定加，最后降噪一下提升很大
+    % x_ista = TV_denoising(x_ista/255,0.05,10)*255; % 最后降噪一下提升很大
     nor         = max(x(:));
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);
