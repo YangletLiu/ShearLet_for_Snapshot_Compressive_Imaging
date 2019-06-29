@@ -1,24 +1,41 @@
 %% COST FUNCTION
 % x^* = argmin_x { 1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_TNN }
 %
-function X  = TNN(A, sX, b, gamma, w, iteration, COST, bFig)
-
+function X  = TNN(A, sX, b, gamma, w, iteration, COST, bFig,sigma,bShear,X0)
+bGPU = false;
+bReal = false;
 if bFig
     obj     = zeros(iteration, 1);
 end
-X = zeros(sX);
+if nargin == 10
+    X0 = zeros(sX);
+end
+if bShear
+    if bReal
+        shearletSystem = SLgetShearletSystem2D(bGPU,sX(1),sX(2),4);
+    else
+        shearletSystem = SLgetShearletSystem2D(bGPU,sX(1),sX(2),1);
+    end
+end
+X = X0;
 t1 = 1;
 X_hat_old = zeros(sX);
 
 for i = 1:iteration
 %% Fista+TNN
     X_hat = myfft(X)-gamma*myfft(reshape(A'*(A*X(:)-b),sX)); % gamma should be 0.1
-    for j = 1:size(X_hat,3)
-        X_hat(:,:,j) = wnnm(X_hat(:,:,j),sqrt(2),w(i,iteration)); % wnnm 插值
-        % S = wnnm(S,sqrt(2),w(ceil(i/(iteration/length(w))))); % wnnm 等间距设置w
+    if w(i,iteration)~=0
+    % if w(ceil(i/(iteration/length(w)))) ~=0
+        for j = 1:size(X_hat,3)
+            X_hat(:,:,j) = wnnm(X_hat(:,:,j),sqrt(2),w(i,iteration)); % wnnm 插值
+            % X_hat(:,:,j) = wnnm(X_hat(:,:,j),sqrt(2),w(ceil(i/(iteration/length(w))))); % wnnm 等间距设置w
+        end
     end
     t2 = (1+sqrt(1+4*t1^2))/2;
     X = myifft(X_hat + (t1-1)/t2*(X_hat-X_hat_old));
+    if bShear
+        X = shealetShrinkage(X,sigma,shearletSystem,bGPU,bReal);
+    end
     X = projection(X);
     % X = tvdenoise(X,1,3); 
     X_hat_old = X_hat;
@@ -81,3 +98,24 @@ function output=myifft(input)
     end 
 end
 
+
+function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU,bReal)
+    Xrec = zeros(size(Xnoisy));
+    if bGPU
+        Xrec = gpuArray(single(Xrec));
+    end
+    if bReal
+        thresholdingFactor = [0 1 1 1 3.5];
+    else
+        thresholdingFactor = [0 4]; % 1 for lowpass, 2 for scale 1
+    end
+    codedFrame = size(Xnoisy,3);
+    for i=1:codedFrame
+        coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
+        for j = 1:shearletSystem.nShearlets
+            idx = shearletSystem.shearletIdxs(j,:);
+            coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j)) >= thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
+        end
+        Xrec(:,:,i) = SLshearrec2D(coeffs,shearletSystem);
+    end
+end

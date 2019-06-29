@@ -13,10 +13,10 @@ home;
 
 bGPU = false;
 bReal = false;
-load("toy31_cassi.mat") % orig,meas,mask
-codedNum = 31;
-% load("bird24_cassi.mat") % orig,meas,mask
-% codedNum = 24;
+% load("toy31_cassi.mat") % orig,meas,mask
+% codedNum = 31;
+load("bird24_cassi.mat") % orig,meas,mask
+codedNum = 24;
 test_data = 1;
 
 for k = test_data
@@ -37,8 +37,8 @@ for k = test_data
     end
     bShear = true;
     bFig = true;
-    sigma = 0.3;
-    LAMBDA  = 5;  
+    sigma = 0.5;
+    LAMBDA  = 16;  
     L       = 25;
     niter   = 800; 
     A       = @(x) sample(M,ifft2(x),codedNum);
@@ -68,9 +68,9 @@ for k = test_data
 %     [n1,n2,n3] = size(x);  
 %     gamma = 1e-2;
 %     niter = 30;
-%     w0 = 1000;
+%     w0 = 800;
 %     w1 = 10;
-%     w = @(ite,iteration) w0*max(0,(1-ite/iteration)^w1);
+%     w = @(ite,iteration) w0*max(0,(1-3*ite/iteration)^w1);
 %     A = [];     
 %     for i=1:n3
 %        S=diag(sparse(double(mask(n1*n2*(i-1)+1:n1*n2*i))));

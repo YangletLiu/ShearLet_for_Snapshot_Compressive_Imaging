@@ -28,19 +28,20 @@ for k = test_data
         x       = x * 255;
     end
     gamma = 1e-1;
+    sigma = 1;
     bFig = true;
-    w = @(ite,iteration) 100*(1-ite/iteration)^10;% 多项式插值递减w, 28 on average
+    bShear = true;
+    w = @(ite,iteration) 1000*(1-ite/iteration)^10;% 多项式插值递减w, 28 on average
     % w = @(ite,iteration) 60*(1-ite/iteration);  
     % 线性插值递减w时，发现最后的阶段其实loss下降得很快，改用多项式插值（且阶数越高，收敛得越快）
     % w = [60,30,20,12,8,5,2]; % 同时采用等间距取值，27.55 on average in 400 iteration
-    niter   = 300; 
+    niter   = 600; 
     [n1,n2,n3] = size(x);                    
     A = [];     
     for i=1:n3
        S=diag(sparse(double(mask(n1*n2*(i-1)+1:n1*n2*i))));
        A=[A,S];
     end
-
     %% INITIALIZATION
     y       = meas(:,:,k);
     y = y(:);
@@ -50,7 +51,7 @@ for k = test_data
 
 %% RUN
     tic
-    x_ista	= TNN(A, [n1,n2,n3], y, gamma, w, niter, COST, bFig);
+    x_ista	= TNN(A, [n1,n2,n3], y, gamma, w, niter, COST, bFig, sigma,bShear);
     time = toc;
     %x_ista = TV_denoising(x_ista/255,0.05,10)*255;
     nor         = max(x(:));
