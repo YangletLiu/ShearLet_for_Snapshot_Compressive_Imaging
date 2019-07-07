@@ -85,7 +85,7 @@ for k = test_data
     if bGPU
         x_ista = gather(x_ista);
     end
-    %x_ista = TV_denoising(x_ista/255,0.05,10)*255;
+    x_ista = TV_denoising(x_ista/255,0.05,10)*255;
     nor         = max(x(:));
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);

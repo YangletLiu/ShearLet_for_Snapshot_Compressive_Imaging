@@ -11,7 +11,7 @@
 close all;
 home;
 
-bGPU = false;
+bGPU = true;
 bReal = false;
 % load("toy31_cassi.mat") % orig,meas,mask
 % codedNum = 31;
@@ -36,11 +36,11 @@ for k = test_data
         M = gpuArray(single(M));
     end
     bShear = true;
-    bFig = true;
-    sigma = 0.5;
-    LAMBDA  = 16;  
+    bFig = false;
+    sigma = 0.3;
+    LAMBDA  = 5;  
     L       = 25;
-    niter   = 800; 
+    niter   = 20; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
@@ -89,37 +89,37 @@ for k = test_data
     end
 
     time = toc;
-    % x_ista = TV_denoising(x_ista/255,0.05,10)*255; % 正式测试一定加，最后降噪一下提升很大
+    x_ista = TV_denoising(x_ista/255,0.05,10)*255;
     nor         = max(x(:));
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);
 %% DISPLAY
-    figure(1); 
-    for i=1:codedNum
-        if bOrig
-            colormap gray;
-            subplot(121);   
-            imagesc(x(:,:,i));
-            set(gca,'xtick',[],'ytick',[]);
-            title('orig');
-
-            subplot(122);   
-            imagesc(x_ista(:,:,i));  	
-            set(gca,'xtick',[],'ytick',[]); 
-
-            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); % 应该算平均值，这里暂留，已经在show中修改了
-            ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
-            title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
-        else 
-            colormap gray;
-            imagesc(x_ista(:,:,i));  	
-            set(gca,'xtick',[],'ytick',[]); 
-            title(['frame : ' num2str(i, '%d')]);
-        end
-        pause(1);
-    end
-    psnr_ista = mean(psnr_x_ista);
-    ssim_ista = mean(ssim_x_ista);
+%     figure(1); 
+%     for i=1:codedNum
+%         if bOrig
+%             colormap gray;
+%             subplot(121);   
+%             imagesc(x(:,:,i));
+%             set(gca,'xtick',[],'ytick',[]);
+%             title('orig');
+% 
+%             subplot(122);   
+%             imagesc(x_ista(:,:,i));  	
+%             set(gca,'xtick',[],'ytick',[]); 
+% 
+%             psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); % 应该算平均值，这里暂留，已经在show中修改了
+%             ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
+%             title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
+%         else 
+%             colormap gray;
+%             imagesc(x_ista(:,:,i));  	
+%             set(gca,'xtick',[],'ytick',[]); 
+%             title(['frame : ' num2str(i, '%d')]);
+%         end
+%         pause(1);
+%     end
+%     psnr_ista = mean(psnr_x_ista);
+%     ssim_ista = mean(ssim_x_ista);
 
     %save(sprintf("results/traffic/ours_traffic%d.mat",k))
 end

@@ -69,7 +69,7 @@ for i = 1:iteration
         xlim([1, iteration]);   grid on; grid minor;
         % drawnow();
     else
-        % sprintf(num2str(i))
+        sprintf(num2str(i))
     end
     
     
@@ -93,7 +93,7 @@ function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU,bReal)
         thresholdingFactor = [0 4]; % 1 for lowpass, 2 for scale 1
     end
     codedFrame = size(Xnoisy,3);
-    for i=1:codedFrame
+    parfor i=1:codedFrame
         coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
         for j = 1:shearletSystem.nShearlets
             idx = shearletSystem.shearletIdxs(j,:);
