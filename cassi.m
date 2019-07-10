@@ -11,7 +11,7 @@
 close all;
 home;
 
-bGPU = true;
+bGPU = false;
 bReal = false;
 load("toy31_cassi.mat") % orig,meas,mask
 codedNum = 31;

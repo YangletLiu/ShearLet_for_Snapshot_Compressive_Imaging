@@ -54,10 +54,10 @@ for k = test_data
     end
     bShear = true;
     bFig = true;
-    sigma = 1;
-    LAMBDA  = 12;  
+    sigma = @(ite) 0.2+max(0,ite/200-1)*0.1;
+    LAMBDA  = @(ite) 12-max(0,ite/200-1)*4;  
     L       = 10;
-    niter   = 400; 
+    niter   = 800; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
@@ -76,6 +76,8 @@ for k = test_data
     L2              = @(x) power(norm(x, 'fro'), 2);
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
     COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
+    COST.equation   = '1/2 * || A(X) - Y ||_2^2';
+    COST.function	= @(X) 1/2 * L2(A(X) - y);
 
 %% RUN
     tic
@@ -85,7 +87,7 @@ for k = test_data
     if bGPU
         x_ista = gather(x_ista);
     end
-    x_ista = TV_denoising(x_ista/255,0.05,10)*255;
+    % x_ista = TV_denoising(x_ista/255,0.05,10)*255;
     nor         = max(x(:));
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);
