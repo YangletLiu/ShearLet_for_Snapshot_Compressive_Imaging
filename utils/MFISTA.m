@@ -43,7 +43,7 @@ if bShear
 end
 
 for i = 1:iteration
-    X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA(i)); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
+    X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
     
     t2 = (1+sqrt(1+4*t1^2))/2;
     X = X1 + (t1-1)/t2*(X1-X0);
@@ -76,8 +76,8 @@ for i = 1:iteration
     x = ifft2(X);
     x = projection(x);
     if bShear
-        x = shealetShrink(x,sigma(i),shearletSystem,bGPU);
-        % x = shealetShrinkage(x,sigma,shearletSystem,bGPU,bReal);
+        % x = shealetShrink(x,sigma(i),shearletSystem,bGPU);
+        x = shealetShrinkage(x,sigma,shearletSystem,bGPU,bReal);
     end
     X = fft2(x);
 end
@@ -99,6 +99,7 @@ function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU,bReal)
         for j = 1:shearletSystem.nShearlets
             idx = shearletSystem.shearletIdxs(j,:);
             coeffs(:,:,j) = coeffs(:,:,j).*(abs(coeffs(:,:,j)) >= thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
+            % coeffs = threshold(coeffs,thresholdingFactor(idx(2)+1)*shearletSystem.RMS(j)*sigma);
         end
         Xrec(:,:,i) = SLshearrec2D(coeffs,shearletSystem);
     end
