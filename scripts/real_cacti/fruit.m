@@ -1,7 +1,7 @@
 clear
 clc
 
-fname = '5triBalls22_cacti.mat';
+fname = '3fruit22_cacti.mat';
 load(fname);
 Row = 512;
 Col = 512;
