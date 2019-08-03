@@ -1,3 +1,12 @@
+% ÖðÖ¡²é¿´
+load("ours_fan_1.mat")
+for i=1:14
+    figure(2)
+    colormap('gray')
+    subplot(2,7,15-i)
+    imagesc(x_ista(:,:,i)/255); 
+    set(gca,'xtick',[],'ytick',[]); 
+end
 % nor = 255;
 % psnr_i = zeros(8,1);
 % % ssim_i = zeros(8,1);
@@ -169,11 +178,3 @@
 %     set(gca,'xtick',[],'ytick',[]); 
 % end
 % % 
-load("ours_fan6.mat")
-for i=1:14
-    figure(2)
-    colormap('gray')
-    subplot(2,7,15-i)
-    imagesc(x_ista(:,:,i)/255); 
-    set(gca,'xtick',[],'ytick',[]); 
-end

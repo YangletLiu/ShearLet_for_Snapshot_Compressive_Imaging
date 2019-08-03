@@ -32,7 +32,7 @@ for k = test_data
     sigma = 1;
     LAMBDA  = 12;  
     L       = 10;
-    niter   = 400; 
+    niter   = 200; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
@@ -51,8 +51,8 @@ for k = test_data
     L2              = @(x) power(norm(x, 'fro'), 2);
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
     COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
-    COST.equation   = '1/2 * || A(X) - Y ||_2^2';
-    COST.function	= @(X) 1/2 * L2(A(X) - y);
+%     COST.equation   = '1/2 * || A(X) - Y ||_2^2';
+%     COST.function	= @(X) 1/2 * L2(A(X) - y);
 
 %% RUN
     tic
@@ -93,6 +93,6 @@ for k = test_data
     end
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
-
-    %save(sprintf("results/traffic/ours_traffic%d.mat",k))
+    
+    save(sprintf("results/ours_kobe_%d.mat",k))
 end

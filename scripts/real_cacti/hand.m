@@ -95,5 +95,5 @@ for k = test_data
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
 
-    %save(sprintf("results/traffic/ours_traffic%d.mat",k))
+    save(sprintf("results/ours_hand_%d.mat",k))
 end

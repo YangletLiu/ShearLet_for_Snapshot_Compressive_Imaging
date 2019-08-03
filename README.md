@@ -13,3 +13,8 @@
 `flowchart.m` 是flowchart图的来源。
 
 `save_gray.m`和`save_rgb.m`存储cacti的各帧图像，`show.m`和`show_rgb.m`加载数据后绘制图像是用来观察、对比不同算法效果的。
+
+
+
+- 运行前将整个文件夹添加到matlab路径。
+

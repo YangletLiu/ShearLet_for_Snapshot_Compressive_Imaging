@@ -65,32 +65,32 @@ for k = test_data
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);
 %% DISPLAY
-%     figure(1); 
-%     for i=1:codedNum
-%         if bOrig
-%             colormap gray;
-%             subplot(121);   
-%             imagesc(x(:,:,i));
-%             set(gca,'xtick',[],'ytick',[]);
-%             title('orig');
-% 
-%             subplot(122);   
-%             imagesc(x_ista(:,:,i));  	
-%             set(gca,'xtick',[],'ytick',[]); 
-% 
-%             psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); % 应该算平均值，这里暂留，已经在show中修改了
-%             ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
-%             title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
-%         else 
-%             colormap gray;
-%             imagesc(x_ista(:,:,i));  	
-%             set(gca,'xtick',[],'ytick',[]); 
-%             title(['frame : ' num2str(i, '%d')]);
-%         end
-%         pause(1);
-%     end
-%     psnr_ista = mean(psnr_x_ista);
-%     ssim_ista = mean(ssim_x_ista);
+    figure(1); 
+    for i=1:codedNum
+        if bOrig
+            colormap gray;
+            subplot(121);   
+            imagesc(x(:,:,i));
+            set(gca,'xtick',[],'ytick',[]);
+            title('orig');
 
-    %save(sprintf("results/traffic/ours_traffic%d.mat",k))
+            subplot(122);   
+            imagesc(x_ista(:,:,i));  	
+            set(gca,'xtick',[],'ytick',[]); 
+
+            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); % 应该算平均值，这里暂留，已经在show中修改了
+            ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
+            title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
+        else 
+            colormap gray;
+            imagesc(x_ista(:,:,i));  	
+            set(gca,'xtick',[],'ytick',[]); 
+            title(['frame : ' num2str(i, '%d')]);
+        end
+        pause(1);
+    end
+    psnr_ista = mean(psnr_x_ista);
+    ssim_ista = mean(ssim_x_ista);
+
+    save(sprintf("results/ours_toy_%d.mat",k))
 end

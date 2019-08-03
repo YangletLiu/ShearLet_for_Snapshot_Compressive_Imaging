@@ -76,3 +76,5 @@ for rr=1:4
 end
 
 [Img_recon_sensor X_recon_col] = my_demosaic(Row,Col,1,codedNum,rotnum,x_ista);
+
+save("results/ours_triBalls.mat")
