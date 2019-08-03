@@ -1,4 +1,4 @@
-%%
+%% 旧参数里lambda是lambda/L
 clear ;
 close all;
 home;
@@ -31,7 +31,7 @@ for k = test_data
     bShear = true;
     bFig = true;
     sigma = 0.05;
-    LAMBDA  = 6e5;  
+    LAMBDA  = 3;  
     L       = 2e5;
     niter   = 30; 
     A       = @(x) sample(M,ifft2(x),codedNum);

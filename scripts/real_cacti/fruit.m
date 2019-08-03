@@ -1,7 +1,7 @@
 clear
 clc
 
-fname = '3fruit22_cacti.mat';
+fname = '3fruits22_cacti.mat';
 load(fname);
 Row = 512;
 Col = 512;
@@ -13,7 +13,7 @@ codedNum = 22;  % How many frames collapsed to 1 measurement
 bFig = true;
 bShear = true;
 sigma = 0.03; 
-LAMBDA  = 40;
+LAMBDA  = 4;
 L       = 10;
 niter   = 40; 
 

@@ -13,9 +13,9 @@ codedNum = 22;  % How many frames collapsed to 1 measurement
 bFig = true;
 bShear = true;
 sigma = 0.1; 
-LAMBDA  = 120;
+LAMBDA  = 12;
 L       = 10;
-niter   = 25; 
+niter   = 20; 
 
 x0      = zeros(Row/2, Col/2,codedNum);
 L1              = @(x) norm(x, 1);

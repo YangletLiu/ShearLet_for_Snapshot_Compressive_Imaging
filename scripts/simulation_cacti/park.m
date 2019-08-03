@@ -51,8 +51,6 @@ for k = test_data
     L2              = @(x) power(norm(x, 'fro'), 2);
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
     COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
-    COST.equation   = '1/2 * || A(X) - Y ||_2^2';
-    COST.function	= @(X) 1/2 * L2(A(X) - y);
 
 %% RUN
     tic
