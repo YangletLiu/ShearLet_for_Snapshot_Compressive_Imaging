@@ -38,14 +38,14 @@ for k = test_data
     acc = true;
     bShear = true;
     bFig = true;
-    sigma = 10;
-    LAMBDA  = 10;  
-    niter   = 30; 
-    L       = @(ite) 1;
+    sigma = 1e-1;
+    LAMBDA  = 4;  
+    niter   = 40; 
+    L       = @(ite) 0.4;
     A       = @(x) sample(M,x,codedNum);
     AT      = @(y) sampleH(M,y,codedNum,bGPU);
     Phisum = sum(mask.^2,3);
-    Phisum(Phisum==0) = 1;
+    Phisum(Phisum==0) = 1; % 0.0001
 
     %% INITIALIZATION
     if bOrig
@@ -105,4 +105,12 @@ for k = test_data
     ssim_ista = mean(ssim_x_ista);
 
     %save(sprintf("results/traffic/ours_traffic%d.mat",k))
+end
+
+ figure(2);
+for i = 1:8  
+    subplot(2,8,i);imagesc(x_ista(:,:,i));
+    axis off; colormap(gray);  
+    subplot(2,8,i+8);imagesc(orig(:,:,i));
+    axis off; colormap(gray); 
 end

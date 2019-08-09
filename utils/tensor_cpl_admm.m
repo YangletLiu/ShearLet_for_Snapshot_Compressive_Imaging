@@ -22,16 +22,15 @@ for k         =     1 : maxItr
     one       =     diag(sparse(double(one)))          ;   
     x         =     (A'*A+rho*one)\(rho*zhat - uhat + A'*q)          ;    
     z         =     reshape((x + 1/rho*uhat),sX);
-%     z         =     tvdenoise(z,rho,3)                 ; 
-%     z         =     tvdenoise(z,0.003,3)               ;
-%     z         =     tvdenoise(z,0.001,3)               ;
-%     z         =     tvdenoise(z,0.0007,3)              ;
-    z_hat = myfft(z);
-    for j = 1:size(z_hat,3)
-        z_hat(:,:,j) = wnnm(z_hat(:,:,j),sqrt(2),w(k,maxItr)); % wnnm ²åÖµ
-    end
-    z = myifft(z_hat);
-    
+    z         =     tvdenoise(z,rho,3)                 ; 
+    z         =     tvdenoise(z,0.003,3)               ;
+    z         =     tvdenoise(z,0.001,3)               ;
+    z         =     tvdenoise(z,0.0007,3)              ;
+%     z_hat = myfft(z);
+%     for j = 1:size(z_hat,3)
+%         z_hat(:,:,j) = wnnm(z_hat(:,:,j),sqrt(2),w(k,maxItr)); % wnnm ²åÖµ
+%     end
+%     z = myifft(z_hat);
     
     figure(1); 
     colormap gray;
@@ -40,7 +39,7 @@ for k         =     1 : maxItr
     subplot(122); 
     imagesc(z(:,:,8));
 
-    
+        
     z         =     z(:)                               ;
     u         =     uhat + rho*(x - z)                 ;
     r_norm    =     norm(x-z)                          ;
