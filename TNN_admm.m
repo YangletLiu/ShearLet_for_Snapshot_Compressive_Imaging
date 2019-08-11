@@ -15,10 +15,10 @@ load('traffic8_cacti.mat');
     bb                     =        meas(:,:,1)                        ; 
     alpha                  =        1                                  ;
     maxItr                 =        500                                ; % maximum iteration
-    rho                    =        0.1;%1;%100w/0.001rho;                             ;
+    rho                    =        0.008;%1;%100w/0.001rho;                             ;
     b                      =        bb(:)                              ; % available data
-    w = @(ite,iteration) 120;%+100*(1-ite/iteration);
-    sigma = 1;
+    w = @(ite,iteration) 60;%+100*(1-ite/iteration);
+    sigma                  =        0.06                                ;
     % ================ main process of completion =======================
     X                      =    tensor_cpl_admm( A , b , rho , alpha , ...
                                 [n1,n2,n3], maxItr, w, sigma);
