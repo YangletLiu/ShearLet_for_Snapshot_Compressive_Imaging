@@ -2,7 +2,7 @@
 % x^* = argmin_x { 1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1 }
 %
 % x^k+1 = threshold(x^k - 1/L*AT(A(x^k)) - Y), lambda/L)
-function X  = SeSCI(A, AT, X0, b, LAMBDA, L, sigma, iteration, COST, bFig, bGPU,bShear,bReal)
+function X  = SeSCI_new(A, AT, X0, b, LAMBDA, L, sigma, iteration, COST, bFig, bGPU,bShear,bReal)
 if (nargin < 12)
     bShear = false;
 end
@@ -28,8 +28,9 @@ if bFig
     obj     = zeros(iteration, 1);
 end
 t1 = 1;
+[w,h,f] = size(X0);
 X = X0;
-[w,h,~] = size(X0);
+X0 = X0(:);
 
 if bShear
     if bReal
@@ -40,13 +41,15 @@ if bShear
 end
 
 for i = 1:iteration
-    X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA); 
+    X = X - 1/L*AT(A(X) - b);
+    X1 = threshold_complex(X(:), LAMBDA); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
     
     t2 = (1+sqrt(1+4*t1^2))/2;
     X = X1 + (t1-1)/t2*(X1-X0);
     X0 = X1;
     t1=t2;
     
+    X = reshape(X,[w,h,f]);
     if bGPU && bFig
         obj(i)  = gather(COST.function(X));   
     elseif bFig
@@ -74,7 +77,7 @@ for i = 1:iteration
     x = projection(x);
     if bShear
         % x = shealetShrink(x,sigma(i),shearletSystem,bGPU);
-        x = shealetShrinkage(x,sigma,shearletSystem,bGPU,bReal);
+        x = shealetShrinkage(x,sigma(i),shearletSystem,bGPU,bReal);
     end
     X = fft2(x);
 end
