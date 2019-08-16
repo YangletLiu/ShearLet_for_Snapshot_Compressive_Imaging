@@ -42,7 +42,7 @@ end
 
 for i = 1:iteration
     X = X - 1/L*AT(A(X) - b);
-    X1 = threshold_complex(X(:), LAMBDA); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
+    X1 = threshold_complex(X(:), LAMBDA(i)); % 这里因为我们知道A函数其实对应的是某个矩阵，都是线性变换，所以必然有AT(A(x)-b) = AT(A(x))-AT(b)
     
     t2 = (1+sqrt(1+4*t1^2))/2;
     X = X1 + (t1-1)/t2*(X1-X0);
@@ -51,9 +51,9 @@ for i = 1:iteration
     
     X = reshape(X,[w,h,f]);
     if bGPU && bFig
-        obj(i)  = gather(COST.function(X));   
+        obj(i)  = gather(COST.function(X,i));   
     elseif bFig
-        obj(i)  = COST.function(X);
+        obj(i)  = COST.function(X,i);
     end
     
     if (bFig)
@@ -94,7 +94,7 @@ function Xrec = shealetShrinkage(Xnoisy,sigma,shearletSystem,bGPU,bReal)
         thresholdingFactor = [0 4]; % 1 for lowpass, 2 for scale 1
     end
     codedFrame = size(Xnoisy,3);
-    parfor i=1:codedFrame
+    for i=1:codedFrame
         coeffs = SLsheardec2D(Xnoisy(:,:,i),shearletSystem);
         for j = 1:shearletSystem.nShearlets
             idx = shearletSystem.shearletIdxs(j,:);

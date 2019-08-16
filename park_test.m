@@ -1,4 +1,4 @@
-%%
+%% 29.16
 clear ;
 close all;
 home;
@@ -6,7 +6,7 @@ home;
 bGPU = false;
 bReal = false;
 %% DATASET
-load("kobe32_cacti.mat") % orig,meas,mask
+load("4park8_cacti.mat") % orig,meas,mask
 codedNum = 8;
 test_data = 1;
 
@@ -30,10 +30,10 @@ for k = test_data
     bShear = true;
     bFig = true;
     L       = 6;
-    niter   = 250;
-    delta_lambda = 1e5;
-    delta_sigma = 0.1;
-    lambda  = @(ite) max(4e6-delta_lambda*ite,4000); 
+    niter   = 600;
+    delta_lambda = 1e4;
+    delta_sigma = 0.04;
+    lambda  = @(ite) max(1e6-delta_lambda*ite,9000); 
     sigma = @(ite) max(4-delta_sigma*ite,1); 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
@@ -96,5 +96,5 @@ for k = test_data
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
     
-    save(sprintf("results/ours_kobe_%d.mat",k))
+    save(sprintf("results/ours_park_%d.mat",k))
 end
