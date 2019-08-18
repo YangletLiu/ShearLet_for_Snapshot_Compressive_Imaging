@@ -32,9 +32,9 @@ for k = test_data
     L       = 6;
     niter   = 600;
     delta_lambda = 1e4;
-    delta_sigma = 0.04;
-    lambda  = @(ite) max(1e6-delta_lambda*ite,9000); 
-    sigma = @(ite) max(4-delta_sigma*ite,1); 
+    delta_sigma = 0.02;
+    lambda  = @(ite) max(1e6-delta_lambda*ite,1000); 
+    sigma = @(ite) max(2-delta_sigma*ite,1); 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 

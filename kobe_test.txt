@@ -1,0 +1,5 @@
+lambda  sigma   delta_lambda    delta_sigma     lambda  sigma   psnr
+4e6     20      1e5             0.1             4000    1       30.43
+4e6     4       1e5             0.1             600     1       30.39
+4e6     4       1e5             0.1             60      1       30.33
+4e6     4       1e5             0.1             120     1       30.29
