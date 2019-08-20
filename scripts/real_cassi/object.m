@@ -27,8 +27,8 @@ for k = test_data
     end
     bShear = true;
     bFig = true;
-    sigma = 0.5;
-    LAMBDA  = 0.3;  
+    sigma = @(ite) 0.5;
+    LAMBDA  = @(ite) 0.3;  
     L       = 25;
     niter   = 600; 
     A       = @(x) sample(M,ifft2(x),codedNum);
@@ -50,7 +50,7 @@ for k = test_data
     L2              = @(x) power(norm(x, 'fro'), 2);
 %% SeSCI
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
-    COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
+    COST.function	= @(X,ite) 1/2 * L2(A(X) - y) + LAMBDA(ite) * L1(X(:));
     x_ista	= SeSCI(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
     x_ista = real(ifft2(x_ista));
     if bGPU

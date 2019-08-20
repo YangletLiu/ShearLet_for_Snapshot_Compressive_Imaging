@@ -1,3 +1,5 @@
-lambda  sigma   delta_lambda    delta_sigma     lambda  sigma   psnr
+lambda  sigma   delta_lambda    delta_sigma     lambda  sigma   psnr(600ites)
 1e6     4       1e4             0.04            8000    1       27.90
 1e6     4       1e4             0.04            3000    1       27.40
+1e6     4       1e4             0.04            9000    1       27.90
+1e6     4       1e4             0.04            7000    1       27.87

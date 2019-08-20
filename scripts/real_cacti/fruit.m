@@ -12,8 +12,8 @@ codedNum = 22;  % How many frames collapsed to 1 measurement
 
 bFig = true;
 bShear = true;
-sigma = 0.03; 
-LAMBDA  = 4;
+sigma = @(ite) 0.03; 
+LAMBDA  = @(ite) 4;
 L       = 10;
 niter   = 40; 
 
@@ -68,7 +68,7 @@ for rr=1:4
     
     A       = @(x) sample(Phi_use,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(Phi_use,y,codedNum,0));
-    COST.function	= @(X) 1/2 * L2(A(X) - yuse) + LAMBDA * L1(X(:));
+    COST.function	= @(X,ite) 1/2 * L2(A(X) - yuse) + LAMBDA(ite) * L1(X(:));
     
     theta = SeSCI(A, AT, x0, yuse, LAMBDA, L, sigma, niter, COST, bFig, 0,bShear,1);
     theta = real(ifft2(theta));

@@ -30,11 +30,11 @@ for k = test_data
     bShear = true;
     bFig = true;
     L       = 6;
-    niter   = 250;
-    delta_lambda = 1e5;
+    niter   = 700;
+    delta_lambda = 10e4;
     delta_sigma = 0.1;
-    lambda  = @(ite) max(4e6-delta_lambda*ite,4000); 
-    sigma = @(ite) max(4-delta_sigma*ite,1); 
+    lambda  = @(ite) max(5e6-delta_lambda*ite,4000); 
+    sigma = @(ite) max(5-delta_sigma*ite,1.1-0.001*ite); 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 

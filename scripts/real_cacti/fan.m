@@ -30,8 +30,8 @@ for k = test_data
     
     bShear = true;
     bFig = true;
-    sigma = 0.03;
-    LAMBDA  = 0.5;  
+    sigma = @(ite) 0.03;
+    LAMBDA  = @(ite) 0.5;  
     L       = 2e5;
     niter   = 400; 
     A       = @(x) sample(M,ifft2(x),codedNum);
@@ -51,9 +51,9 @@ for k = test_data
     L1              = @(x) norm(x, 1);
     L2              = @(x) power(norm(x, 'fro'), 2);
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
-    COST.function	= @(X) 1/2 * L2(A(X) - y) + LAMBDA * L1(X(:));
+    COST.function	= @(X,ite) 1/2 * L2(A(X) - y) + LAMBDA(ite) * L1(X(:));
     COST.equation   = '1/2 * || A(X) - Y ||_2^2';
-    COST.function	= @(X) 1/2 * L2(A(X) - y);
+    COST.function	= @(X,ite) 1/2 * L2(A(X) - y);
 
 %% RUN
     tic

@@ -40,7 +40,7 @@ if bShear
 end
 
 for i = 1:iteration
-    X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA); 
+    X1 = threshold(X - 1/L*AT(A(X) - b), LAMBDA(i)); 
     
     t2 = (1+sqrt(1+4*t1^2))/2;
     X = X1 + (t1-1)/t2*(X1-X0);
@@ -48,9 +48,9 @@ for i = 1:iteration
     t1=t2;
     
     if bGPU && bFig
-        obj(i)  = gather(COST.function(X));   
+        obj(i)  = gather(COST.function(X,i));   
     elseif bFig
-        obj(i)  = COST.function(X);
+        obj(i)  = COST.function(X,i);
     end
     
     if (bFig)
@@ -73,8 +73,8 @@ for i = 1:iteration
     x = ifft2(X);
     x = projection(x);
     if bShear
-        % x = shealetShrink(x,sigma(i),shearletSystem,bGPU);
-        x = shealetShrinkage(x,sigma,shearletSystem,bGPU,bReal);
+        x = shealetShrink(x,sigma(i),shearletSystem,bGPU);
+        % x = shealetShrinkage(x,sigma,shearletSystem,bGPU,bReal);
     end
     X = fft2(x);
 end
