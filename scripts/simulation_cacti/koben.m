@@ -1,4 +1,4 @@
-%% 23.54
+%%
 clear ;
 close all;
 home;
@@ -6,7 +6,7 @@ home;
 bGPU = false;
 bReal = false;
 %% DATASET
-load("traffic8_cacti.mat") % orig,meas,mask
+load("kobe32_cacti.mat") % orig,meas,mask
 codedNum = 8;
 test_data = 1;
 
@@ -28,16 +28,15 @@ for k = test_data
         M = gpuArray(single(M));
     end
     bShear = true;
-    bFig = true;
-    L       = 10;
+    bFig = false;
+    L       = 6;
     niter   = 600;
-    delta_lambda = 1e4;
-    delta_sigma = 0.02;
-    lambda  = @(ite) max(1e6-delta_lambda*ite,100); 
-    sigma = @(ite) max(4-delta_sigma*ite,0.8); 
+    delta_lambda = 10e4;
+    delta_sigma = 0.1;
+    lambda  = @(ite) max(4e6-delta_lambda*ite,4000); 
+    sigma = @(ite) max(4-delta_sigma*ite,1.1-0.001*ite); 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
-
     %% INITIALIZATION
     if bOrig
         y       = sample(M,x,codedNum);
@@ -96,5 +95,5 @@ for k = test_data
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
     
-    save(sprintf("results/ours_traffic_%d.mat",k))
+    save(sprintf("results/ours_kobe_%d.mat",k))
 end

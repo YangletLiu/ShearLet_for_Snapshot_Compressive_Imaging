@@ -29,10 +29,10 @@ for k = test_data
     end
     bShear = true;
     bFig = true;
-    sigma = @(ite) 0.02+0.0005*ite;
-    LAMBDA  = @(ite) 10-0.01*ite;
+    sigma = @(ite) 4;
+    LAMBDA  = @(ite) 12;
     L       = 6;
-    niter   = 500; 
+    niter   = 200; 
     A       = @(x) sample(M,ifft2(x),codedNum);
     AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
 
