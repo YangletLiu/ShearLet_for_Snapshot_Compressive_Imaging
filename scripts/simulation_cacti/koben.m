@@ -30,13 +30,13 @@ for k = test_data
     bShear = true;
     bFig = false;
     L       = 6;
-    niter   = 600;
+    niter   = 500;
     delta_lambda = 10e4;
     delta_sigma = 0.1;
     lambda  = @(ite) max(4e6-delta_lambda*ite,4000); 
     sigma = @(ite) max(4-delta_sigma*ite,1.1-0.001*ite); 
-    A       = @(x) sample(M,ifft2(x),codedNum);
-    AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
+    A       = @(x) sample(M,x,codedNum);
+    AT      = @(y) sampleH(M,y,codedNum,bGPU);
     %% INITIALIZATION
     if bOrig
         y       = sample(M,x,codedNum);

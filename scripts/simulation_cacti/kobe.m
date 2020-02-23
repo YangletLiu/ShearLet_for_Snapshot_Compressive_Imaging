@@ -29,12 +29,12 @@ for k = test_data
     end
     bShear = true;
     bFig = true;
-    sigma = @(ite) 4;
+    sigma = @(ite) 1;
     LAMBDA  = @(ite) 12;
     L       = 6;
-    niter   = 200; 
-    A       = @(x) sample(M,ifft2(x),codedNum);
-    AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
+    niter   = 350; 
+    A       = @(x) sample(M,x,codedNum);
+    AT      = @(y) sampleH(M,y,codedNum,bGPU);
 
     %% INITIALIZATION
     if bOrig
@@ -94,5 +94,5 @@ for k = test_data
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
     
-    save(sprintf("results/ours_kobe_%d.mat",k))
+    % save(sprintf("results/ours_kobe_%d.mat",k))
 end

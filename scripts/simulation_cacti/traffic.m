@@ -34,8 +34,8 @@ for k = test_data
     LAMBDA  = @(ite) 12;  
     L       = @(ite) 6;
     niter   = 350; 
-    A       = @(x) sample(M,ifft2(x),codedNum);
-    AT      = @(y) fft2(sampleH(M,y,codedNum,bGPU));
+    A       = @(x) sample(M,x,codedNum);
+    AT      = @(y) sampleH(M,y,codedNum,bGPU);
 
     %% INITIALIZATION
     if bOrig

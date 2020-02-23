@@ -66,8 +66,8 @@ for rr=1:4
             Phi_use = Phi_B;
     end
     
-    A       = @(x) sample(Phi_use,ifft2(x),codedNum);
-    AT      = @(y) fft2(sampleH(Phi_use,y,codedNum,0));
+    A       = @(x) sample(Phi_use,x,codedNum);
+    AT      = @(y) sampleH(Phi_use,y,codedNum,0);
     COST.function	= @(X,ite) 1/2 * L2(A(X) - yuse) + LAMBDA(ite) * L1(X(:));
     
     theta = SeSCI(A, AT, x0, yuse, LAMBDA, L, sigma, niter, COST, bFig, 0,bShear,1);
