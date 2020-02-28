@@ -5,8 +5,9 @@ home;
 
 bGPU = false;
 bReal = false;
+bPer = true;
 %% DATASET
-load("kobe32_cacti.mat") % orig,meas,mask
+load("larry8_cacti.mat") % orig,meas,mask
 codedNum = 8;
 test_data = 1;
 
@@ -28,11 +29,11 @@ for k = test_data
         M = gpuArray(single(M));
     end
     bShear = true;
-    bFig = false;
-    sigma = @(ite) 1;
+    bFig = true;
+    sigma = @(ite) 0.1;
     LAMBDA  = @(ite) 12;
     L       = 6;
-    niter   = 350; 
+    niter   = 300; 
     A       = @(x) sample(M,x,codedNum);
     AT      = @(y) sampleH(M,y,codedNum,bGPU);
 
@@ -56,7 +57,7 @@ for k = test_data
 
 %% RUN
     tic
-    x_ista	= SeSCI(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
+    x_ista	= SeSCI_f(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
     time = toc;
     x_ista = real(ifft2(x_ista));
     if bGPU
@@ -94,5 +95,5 @@ for k = test_data
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
     
-    % save(sprintf("results/ours_kobe_%d.mat",k))
+    save(sprintf("results/sescif_larry_%d.mat",k))
 end

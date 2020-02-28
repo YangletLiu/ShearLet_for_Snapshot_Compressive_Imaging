@@ -30,7 +30,7 @@ for k = test_data
     sigma = @(ite) 0.5;
     LAMBDA  = @(ite) 16;  
     L       = 25;
-    niter   = 1200; 
+    niter   = 800; 
     A       = @(x) sample(M,x,codedNum);
     AT      = @(y) sampleH(M,y,codedNum,bGPU);
 

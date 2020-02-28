@@ -28,7 +28,7 @@ for k = test_data
         M = gpuArray(single(M));
     end
     bShear = true;
-    bFig = false;
+    bFig = true;
     sigma = @(ite) 1;
     LAMBDA  = @(ite) 12;
     L       = 6;
@@ -56,9 +56,8 @@ for k = test_data
 
 %% RUN
     tic
-    x_ista	= SeSCI(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
+    x_ista	= SeSCI_r(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, false, bGPU,bShear,bReal);
     time = toc;
-    x_ista = real(ifft2(x_ista));
     if bGPU
         x_ista = gather(x_ista);
     end

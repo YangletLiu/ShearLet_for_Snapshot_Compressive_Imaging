@@ -14,7 +14,7 @@ function [xRec,PSNR,SSIM] = sparsity(x,epsilon,type)
             xRec = ifft2(coeffs);
             xRec = real(xRec);
         case 2 
-            % shearlet
+            % shearlet spatial
             shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),1);
             coeffs = zeros(size(x,1),size(x,2),shearletSystem.nShearlets,size(x,3));
             xRec = zeros(size(x));
@@ -121,6 +121,25 @@ function [xRec,PSNR,SSIM] = sparsity(x,epsilon,type)
                 % Take inverse curvelet transform 
                 xRec(:,:,i) = real(waverec2(coeffs(i,:),pos(:,:,i),'haar'));
             end
+        case 6 
+            % shearlet frequency
+            shearletSystem = SLgetShearletSystem2D(0,size(x,1),size(x,2),1);
+            coeffs = zeros(size(x,1),size(x,2),shearletSystem.nShearlets,size(x,3));
+            xRec = zeros(size(x));
+            for i=1:size(x,3)
+                coeffs(:,:,:,i) = SLsheardec2D(x(:,:,i),shearletSystem);
+            end
+            coeffs = fftshift(fft2(ifftshift(coeffs)));
+            coeffsVec = abs(coeffs(:));
+            sortedCoeffs = sort(coeffsVec,'descend');
+            idx = floor(epsilon*size(sortedCoeffs,1));
+            delta = sortedCoeffs(idx);
+            coeffs = coeffs.*(abs(coeffs)>delta);
+            coeffs = fftshift(ifft2(ifftshift(coeffs)));
+            for i =1:size(x,3)
+                xRec(:,:,i) = SLshearrec2D(coeffs(:,:,:,i),shearletSystem);
+            end
+            xRec = real(xRec);
     end
     x = double(x);
     xRec = double(xRec);
