@@ -15,6 +15,7 @@ Here is an example of the reconstructed image.
 ![Figure 1: A reconstruction example.](./figure/reconstruction.png)
 
 <center>Figure 1: A reconstruction example.</center>
+
 ### Shearlet
 
 The shearlet is a multi-scale image transform domain, which provides directional representation of the image signals. The directional coefficients help shearlet preserve the edge information, as shown in Figure 2.  In SeSCI, we assume that the compressed frames are sparse in the frequency domain and shearlet domain. During the implementation of SeSCI, we refer to the [Shearlab](https://www3.math.tu-berlin.de/numerik/www.shearlab-old.org/index.html) library.
@@ -22,6 +23,7 @@ The shearlet is a multi-scale image transform domain, which provides directional
 <img src="./figure/edges.png" width="60%" height="60%" align="center"/>
 
 <center>Figure 2: Shearlet preserves the edges information.</center>
+
 ### File directory
 
 ```bash
