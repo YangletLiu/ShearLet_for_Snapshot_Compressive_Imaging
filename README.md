@@ -1,4 +1,4 @@
-#Shearlet Enhanced Snapshot Compressive Imaging (SeSCI)
+# Shearlet Enhanced Snapshot Compressive Imaging (SeSCI)
 
 This is the repository for the regular paper **Shearlet Enhanced Snapshot Compressive Imaging** in the **IEEE Transactions on Image Processing (TIP)**  by [Peihao Yang](https://forsworns.github.io/), [Linghe Kong](http://www.cs.sjtu.edu.cn/~linghe.kong/), [Xiao-Yang Liu](http://www.tensorlet.com/), and [Xin Yuan](https://www.bell-labs.com/usr/x.yuan).  
 
