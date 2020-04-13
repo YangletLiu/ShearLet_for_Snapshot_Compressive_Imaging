@@ -12,24 +12,28 @@ We conduct reconstruction experiments on two SCI systems named coded aperture co
 
 Here is an example of the reconstructed image. 
 
-![Figure 1: A reconstruction example.](./figure/reconstruction.png)
+<p align="center">
+<img src="./figure/reconstruction.png">
+</p>
 
-<center>Figure 1: A reconstruction example.</center>
+<p align="center">Figure 1: A reconstruction example.</p>
 
 ### Shearlet
 
 The shearlet is a multi-scale image transform domain, which provides directional representation of the image signals. The directional coefficients help shearlet preserve the edge information, as shown in Figure 2.  In SeSCI, we assume that the compressed frames are sparse in the frequency domain and shearlet domain. During the implementation of SeSCI, we refer to the [Shearlab](https://www3.math.tu-berlin.de/numerik/www.shearlab-old.org/index.html) library.
 
-<img src="./figure/edges.png" width="60%" height="60%" align="center"/>
+<p align="center">
+<img src="./figure/edges.png" width="60%" height="60%" />
+</p>
 
-<center>Figure 2: Shearlet preserves the edges information.</center>
+<p align="center">Figure 2: Shearlet preserves the edges information.</p>
 
 ### File directory
 
 ```bash
 .
 ├── algorithms				# SeSCI implementation
-├── dataset					# data mat files
+├── dataset				# data mat files
 ├── experiments					
 │   ├── ablation			# ablation experiments of SeSCI
 │   ├── comparison			# comparison experiments on SCI
@@ -37,7 +41,7 @@ The shearlet is a multi-scale image transform domain, which provides directional
 │   └── sparsity			# sparsity observation
 ├── figure
 ├── results
-└── utils					# utilities and other libs
+└── utils				# utilities and other libs
 ```
 
 
