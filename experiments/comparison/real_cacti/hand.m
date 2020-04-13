@@ -1,13 +1,13 @@
-%%
+%% 旧参数里lambda是lambda/L
 clear ;
 close all;
 home;
 
 bGPU = false;
-bReal = false;
+bReal = true;
 %% DATASET
-load("kobe32_cacti.mat") % orig,meas,mask
-codedNum = 8;
+load("4hand14_cacti.mat") % meas,mask % 1/2e5/0.03
+codedNum = 14;
 test_data = 1;
 
 for k = test_data
@@ -27,12 +27,13 @@ for k = test_data
     if bGPU 
         M = gpuArray(single(M));
     end
+    
     bShear = true;
     bFig = true;
-    sigma = @(ite) 1;
-    LAMBDA  = @(ite) 12;
-    L       = 6;
-    niter   = 350; 
+    sigma = @(ite) 0.05;
+    LAMBDA  = @(ite) 3;  
+    L       = 2e5;
+    niter   = 30; 
     A       = @(x) sample(M,x,codedNum);
     AT      = @(y) sampleH(M,y,codedNum,bGPU);
 
@@ -51,13 +52,14 @@ for k = test_data
     L2              = @(x) power(norm(x, 'fro'), 2);
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
     COST.function	= @(X,ite) 1/2 * L2(A(X) - y) + LAMBDA(ite) * L1(X(:));
-%     COST.equation   = '1/2 * || A(X) - Y ||_2^2';
-%     COST.function	= @(X) 1/2 * L2(A(X) - y);
+    COST.equation   = '1/2 * || A(X) - Y ||_2^2';
+    COST.function	= @(X,ite) 1/2 * L2(A(X) - y);
 
 %% RUN
     tic
-    x_ista	= SeSCI_r(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, false, bGPU,bShear,bReal);
+    x_ista	= SeSCI(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
     time = toc;
+    x_ista = real(ifft2(x_ista));
     if bGPU
         x_ista = gather(x_ista);
     end
@@ -92,6 +94,6 @@ for k = test_data
     end
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
-    
-    % save(sprintf("results/ours_kobe_%d.mat",k))
+
+    save(sprintf("results/ours_hand_%d.mat",k))
 end

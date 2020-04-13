@@ -6,7 +6,7 @@ home;
 bGPU = false;
 bReal = false;
 %% DATASET
-load("snoopy8_cacti.mat") % orig,meas,mask
+load("kobe32_cacti.mat") % orig,meas,mask
 codedNum = 8;
 test_data = 1;
 
@@ -28,14 +28,15 @@ for k = test_data
         M = gpuArray(single(M));
     end
     bShear = true;
-    bFig = true;
-    sigma = @(ite) 2;
-    LAMBDA  = @(ite) 12;
+    bFig = false;
     L       = 6;
-    niter   = 300; 
+    niter   = 500;
+    delta_lambda = 10e4;
+    delta_sigma = 0.1;
+    lambda  = @(ite) max(4e6-delta_lambda*ite,4000); 
+    sigma = @(ite) max(4-delta_sigma*ite,1.1-0.001*ite); 
     A       = @(x) sample(M,x,codedNum);
     AT      = @(y) sampleH(M,y,codedNum,bGPU);
-
     %% INITIALIZATION
     if bOrig
         y       = sample(M,x,codedNum);
@@ -50,13 +51,13 @@ for k = test_data
     L1              = @(x) norm(x, 1);
     L2              = @(x) power(norm(x, 'fro'), 2);
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
-    COST.function	= @(X,ite) 1/2 * L2(A(X) - y) + LAMBDA(ite) * L1(X(:));
+    COST.function	= @(X,i) 1/2 * L2(A(X) - y) + lambda(i) * L1(X(:));
 %     COST.equation   = '1/2 * || A(X) - Y ||_2^2';
 %     COST.function	= @(X) 1/2 * L2(A(X) - y);
 
 %% RUN
     tic
-    x_ista	= SeSCI(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
+    x_ista	= SeSCI_new(A, AT, x0, y, lambda, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
     time = toc;
     x_ista = real(ifft2(x_ista));
     if bGPU
@@ -94,5 +95,5 @@ for k = test_data
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
     
-    save(sprintf("results/ours_snoopy_%d.mat",k))
+    save(sprintf("results/ours_kobe_%d.mat",k))
 end

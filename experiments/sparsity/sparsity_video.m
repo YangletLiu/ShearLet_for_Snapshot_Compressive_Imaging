@@ -29,5 +29,5 @@ ax = gca;
 ax.FontSize = 30;
 box on
 grid on
-xlabel('Top-p (%)')  %xÖá×ø±êÃèÊö
+xlabel('Top-$p$ (\%)','Interpreter','latex','Color','k')  %xÖá×ø±êÃèÊö
 ylabel('PSNR (dB)') %yÖá×ø±êÃèÊö

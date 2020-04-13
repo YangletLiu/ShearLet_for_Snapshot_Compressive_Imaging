@@ -1,14 +1,12 @@
 %%
-clear ;
+%clear ;
 close all;
 home;
-
+% 数据中的orig是TwIST的计算结果
 bGPU = false;
 bReal = false;
-bPer = true;
-%% DATASET
-load("larry8_cacti.mat") % orig,meas,mask
-codedNum = 8;
+load("object33_cassi.mat") % orig,meas,mask
+codedNum = 33;
 test_data = 1;
 
 for k = test_data
@@ -23,23 +21,23 @@ for k = test_data
         bOrig   = false;
         x       = zeros(size(mask));
     end
-    N       = 256;
     M = mask; 
     if bGPU 
         M = gpuArray(single(M));
     end
     bShear = true;
     bFig = true;
-    sigma = @(ite) 1;
-    LAMBDA  = @(ite) 12;
-    L       = 6;
-    niter   = 300; 
+    sigma = @(ite) 0.5;
+    LAMBDA  = @(ite) 0.3;  
+    L       = 25;
+    niter   = 600; 
     A       = @(x) sample(M,x,codedNum);
     AT      = @(y) sampleH(M,y,codedNum,bGPU);
 
     %% INITIALIZATION
     if bOrig
         y       = sample(M,x,codedNum);
+        %y == meas
     else
         y       = meas(:,:,1);
     end
@@ -50,23 +48,43 @@ for k = test_data
     end
     L1              = @(x) norm(x, 1);
     L2              = @(x) power(norm(x, 'fro'), 2);
+%% SeSCI
     COST.equation   = '1/2 * || A(X) - Y ||_2^2 + lambda * || X ||_1';
     COST.function	= @(X,ite) 1/2 * L2(A(X) - y) + LAMBDA(ite) * L1(X(:));
-%     COST.equation   = '1/2 * || A(X) - Y ||_2^2';
-%     COST.function	= @(X) 1/2 * L2(A(X) - y);
-
-%% RUN
-    tic
     x_ista	= SeSCI(A, AT, x0, y, LAMBDA, L, sigma, niter, COST, bFig, bGPU,bShear,bReal);
-    time = toc;
     x_ista = real(ifft2(x_ista));
     if bGPU
         x_ista = gather(x_ista);
     end
+
+    time = toc;
     x_ista = TV_denoising(x_ista/255,0.05,10)*255;
     nor         = max(x(:));
     psnr_x_ista = zeros(codedNum,1);
     ssim_x_ista = zeros(codedNum,1);
+    
+%% TNN + to do refinement
+%     tic
+%     
+%     y = double(y(:));
+%     [n1,n2,n3] = size(x);  
+%     gamma = 1e-2;
+%     niter = 30;
+%     w0 = 100;
+%     w1 = 10;
+%     w = @(ite,iteration) w0*max(0,(1-ite/iteration)^w1);
+%     A = [];     
+%     for i=1:n3
+%        S=diag(sparse(double(mask(n1*n2*(i-1)+1:n1*n2*i))));
+%        A=[A,S];
+%     end
+%     COST.equation   = '1/2 * || A*X - Y ||_2^2 + lambda * || X ||_TNN';
+%     COST.function	= @(X) 1/2 * L2(A*X - y) + nuclear(X);
+%     COST.equation   = '1/2 * || A*X - Y ||_2^2';
+%     COST.function	= @(X) 1/2 * L2(A*X - y);
+%     x_ista	= TNN(A, [n1,n2,n3], y, gamma, w, niter, COST, bFig);
+
+   
 %% DISPLAY
     figure(1); 
     for i=1:codedNum
@@ -81,7 +99,7 @@ for k = test_data
             imagesc(x_ista(:,:,i));  	
             set(gca,'xtick',[],'ytick',[]); 
 
-            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); 
+            psnr_x_ista(i) = psnr(x_ista(:,:,i)./nor, x(:,:,i)./nor, max(max(max(double(x(:,:,i)./nor))))); % 应该算平均值，这里暂留，已经在show中修改了
             ssim_x_ista(i) = ssim(x_ista(:,:,i)./nor, x(:,:,i)./nor);
             title({['frame : ' num2str(i, '%d')], ['PSNR : ' num2str(psnr_x_ista(i), '%.4f')], ['SSIM : ' num2str(ssim_x_ista(i), '%.4f')]});
         else 
@@ -94,6 +112,6 @@ for k = test_data
     end
     psnr_ista = mean(psnr_x_ista);
     ssim_ista = mean(ssim_x_ista);
-    
-    save(sprintf("results/ours_larry_%d.mat",k))
+
+    save("results/ours_object.mat")
 end
