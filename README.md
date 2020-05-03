@@ -1,6 +1,6 @@
 # Shearlet Enhanced Snapshot Compressive Imaging (SeSCI)
 
-This is the repository for the regular paper **Shearlet Enhanced Snapshot Compressive Imaging** in the **IEEE Transactions on Image Processing (TIP)**  by [Peihao Yang](https://forsworns.github.io/), [Linghe Kong](http://www.cs.sjtu.edu.cn/~linghe.kong/), [Xiao-Yang Liu](http://www.tensorlet.com/), and [Xin Yuan](https://www.bell-labs.com/usr/x.yuan).  
+This is the repository for the regular paper **Shearlet Enhanced Snapshot Compressive Imaging** in the **IEEE Transactions on Image Processing (TIP)**  by [Peihao Yang](https://forsworns.github.io/), [Linghe Kong](http://www.cs.sjtu.edu.cn/~linghe.kong/), [Xiao-Yang Liu](http://www.tensorlet.com/), [Xin Yuan](https://www.bell-labs.com/usr/x.yuan), and Guihai Chen.
 
 ## Snapshot Compressive Imaging
 
@@ -121,7 +121,7 @@ This repository only consists of the implementation and testing scripts for SeSC
 
 ```latex
 @article{Peihao20SeSCI,
-   author    = {Yang, Peihao and Kong, Linghe and Liu, Xiao-Yang and Yuan, Xin},
+   author    = {Yang, Peihao and Kong, Linghe and Liu, Xiao-Yang and Yuan, Xin and Chen, Guihai},
    title     = {Shearlet Enhanced Snapshot Compressive Imaging},
    journal   = {IEEE Transactions on Image Processing},
    publisher = {IEEE},
